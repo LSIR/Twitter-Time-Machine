@@ -1,0 +1,85 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<script>
+	function intToK(x){
+		if(x<1000)return ""+x;
+		if(x>1E6)return ((x/1E6)+"M");
+		return ((x/1000.0)+"K");
+	}
+</script>
+<div class="row mt-4">
+	<div class="offset-lg-1 col-lg-3 col-sm-12 col-12 text-center shadow p-3 mb-5 bg-body rounded">
+		<div class="row">
+			<div class="col-12">
+				<img class="rounded-circle" id="pp" width="144" height="144" src="https://www.gamasutra.com/db_area/images/news/2018/Jun/320213/supermario64thumb1.jpg" />
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-12">
+				<h2>
+					{{ name }}
+				</h2>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-12">
+				<h5>
+					@{{ username }}
+				</h2>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-12 mt-3">
+				<p> {{ bio }}</p>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-12 mt-3">
+				<span id="plocation">📍 {{ location }}</span>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-12 mt-3">
+				<a id="plink" href="https://twitter.com/{{ username }}" target="_blank" rel="noopener noreferrer">
+					<button type="button" class="outlink btn-outline-primary btn">View on Tweeter</button>
+				</a>
+			</div>
+		</div>
+		
+	</div>
+	<div class="col-lg-8 col-sm-12" id="profile-secondary">
+		<div class="row">
+			<div class="col-3">
+				<h4>
+					{{ tweet_count }} Tweets
+				</h4>
+			</div>
+			<div class="col-3">
+				<h4>
+					{{ following_count }} Following
+				</h4>
+			</div>
+			<div class="col-3">
+				<h4>
+					{{ followers_count }} Followers
+				</h4>
+			</div>
+			<div class="col-3">
+				<h4>
+					{{ likes_count }} Likes
+				</h4>
+			</div>
+		</div>
+		Here we can put the charts and data
+	</div>
+	<div class="offset-lg-1 col-lg-11 col-sm-12">
+		And some more here
+	</div>
+</div>
+
+{% endblock %}
+

@@ -1,0 +1,33 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<script>
+  //NOTE: It might be worth it to move scripts into separate files, tbd
+  function user_search() {
+    let usr = $("#twusr").val();
+    window.location.href = "/user/"+usr;
+  }
+
+</script>
+
+<div class="row" style="margin-top: 15%;">
+  <div class="col-8 offset-2">
+    <div class="card shadow-lg p-3 mb-5 bg-white rounded">
+      <!--<img src="..." class="card-img-top" alt="..."> if we have a logo we can put it there :) -->
+      <div class="card-body">
+        <form>
+          <label for="twusr">Twitter user</label>
+          <div class="input-group mb-3">
+            <span class="input-group-text" id="at-addon" style="background-color: transparent;">@</span>
+            <input type="text" class="form-control" id="twusr" placeholder="JoeBiden" aria-describedby="at-addon">
+          </div>
+          <div class="input-group justify-content-center">
+            <button type="button" class="btn btn-outline-secondary" onclick="user_search()">Search !</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
