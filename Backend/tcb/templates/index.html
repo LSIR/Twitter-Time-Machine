@@ -4,10 +4,16 @@
 <script>
   //NOTE: It might be worth it to move scripts into separate files, tbd
   function user_search() {
-    let usr = $("#twusr").val();
+    let usr = $("#twusr").val().toLowerCase();
     window.location.href = "/user/"+usr;
   }
 
+  function kp(e) {
+    if (e.keyCode == 13) {
+        e.preventDefault();
+        user_search();
+    }
+}
 </script>
 
 <div class="row" style="margin-top: 15%;">
@@ -19,7 +25,7 @@
           <label for="twusr">Twitter user</label>
           <div class="input-group mb-3">
             <span class="input-group-text" id="at-addon" style="background-color: transparent;">@</span>
-            <input type="text" class="form-control" id="twusr" placeholder="JoeBiden" aria-describedby="at-addon">
+            <input type="text" class="form-control" id="twusr" placeholder="JoeBiden" aria-describedby="at-addon" onkeypress="kp(event)">
           </div>
           <div class="input-group justify-content-center">
             <button type="button" class="btn btn-outline-secondary" onclick="user_search()">Search !</button>
