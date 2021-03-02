@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render
+import json
 import pymongo
 
 client = pymongo.MongoClient('mongodb://localhost:27017')
@@ -26,6 +27,8 @@ def user(request, usr_id):
 			'likes_count': details['favourites_count'],
 			'bio': details['description'],
 			'pp_url': details['profile_image_url_https'],
+			'history': json.dumps(user['history']),
+			#'tweets': user['tweets']
 		}
 		return render(request, 'user.html', context=context)
 	return HttpResponse("User not found :(")

@@ -7,12 +7,23 @@
 		if(x>1E6)return ((x/1E6)+"M");
 		return ((x/1000.0)+"K");
 	}
+
+	function defaultImage(img) {
+		img.onerror = function() {};
+    	img.src = "https://banner2.cleanpng.com/20180715/yag/kisspng-question-mark-computer-icons-exclamation-mark-desk-question-mark-emoji-5b4bb794264216.8330599815316888521567.jpg"
+	}
+
+	$(document).ready(function() {
+		let history = JSON.parse("{{ history }}".replaceAll('&quot;', '\"'))
+		console.log(history)
+	});
+	
 </script>
 <div class="row mt-4">
 	<div class="offset-lg-1 col-lg-3 col-sm-12 col-12 text-center shadow p-3 mb-5 bg-body rounded">
 		<div class="row">
 			<div class="col-12">
-				<img class="rounded-circle" id="pp" width="144" height="144" src="{{ pp_url }}" />
+				<img class="rounded-circle" id="pp" width="144" height="144" src="{{ pp_url }}" onerror="defaultImage(this)"/>
 			</div>
 		</div>
 		<div class="row">
