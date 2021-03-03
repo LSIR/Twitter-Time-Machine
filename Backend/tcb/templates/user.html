@@ -17,6 +17,61 @@
 		let history = JSON.parse("{{ history }}".replaceAll('&quot;', '\"'))
 		console.log(history)
 	});
+
+	function followers_chart() {
+		let history = JSON.parse("{{ history }}".replaceAll('&quot;', '\"'))
+
+		var followers = history.map((x) => {
+			let followers_count = x["details"]["followers_count"]
+			let date = new Date(x["ts"] * 1000)
+			return {t: date, y: followers_count}
+		})
+
+		followers = followers.sort((a, b) => b.t - a.t)
+
+
+		var ctx = document.getElementById("followersChart").getContext("2d")
+
+		var followersChart = new Chart(ctx, {
+			type: 'line',
+			data: {
+				datasets: [{
+					data: followers,
+					backgroundColor: "rgba(30,129,176, 0.5)"
+				}], 
+			},
+			options: {
+				legend: {
+					display: false
+				},
+				scales: {
+					xAxes: [{
+						type: 'time',
+						time: {
+							unit: 'year'
+						},
+						scaleLabel: {
+							display: true,
+							labelString: "Time",
+							fontSize: 25,
+							fontColor: "rgba(30,129,176, 1)"
+						}
+					}],
+					yAxes: [{
+						scaleLabel: {
+							display: true,
+							labelString: "Number of followers",
+							fontSize: 25,
+							fontColor: "rgba(30,129,176, 1)"
+						}
+					}]
+				}
+			}
+		})
+
+		console.log(followers)
+	}
+
 	
 </script>
 <div class="row mt-4">
@@ -64,28 +119,31 @@
 	</div>
 	<div class="col-lg-8 col-sm-12" id="profile-secondary">
 		<div class="row">
-			<div class="col-3">
+			<div class="col-3 text-center">
 				<h4>
 					{{ tweet_count }} Tweets
 				</h4>
 			</div>
-			<div class="col-3">
+			<div class="col-3 text-center">
 				<h4>
 					{{ following_count }} Following
 				</h4>
 			</div>
-			<div class="col-3">
+			<div class="col-3 text-center">
 				<h4>
 					{{ followers_count }} Followers
 				</h4>
 			</div>
-			<div class="col-3">
+			<div class="col-3 text-center">
 				<h4>
 					{{ likes_count }} Likes
 				</h4>
 			</div>
+			<div class="col-12 text-center">
+				<canvas id="followersChart" width="1000" height="600"></canvas>
+				<script>followers_chart();</script>
+			</div>
 		</div>
-		Here we can put the charts and data
 	</div>
 	<div class="offset-lg-1 col-lg-11 col-sm-12">
 		And some more here
