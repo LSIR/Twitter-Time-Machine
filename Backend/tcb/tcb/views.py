@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 import json
 import pymongo
+from datetime import datetime
 
 client = pymongo.MongoClient('mongodb://localhost:27017')
 database = client['trollcheck']
@@ -28,6 +29,10 @@ def user(request, usr_id):
 			'bio': details['description'],
 			'pp_url': details['profile_image_url_https'],
 			'history': json.dumps(user['history']),
+			'url': details['url'],
+			'created_at': datetime.strptime(details['created_at'], '%a %b %d %X %z %Y').strftime("%a %b %d %Y at %X"),
+			'verified': '<i rel="tooltip" title="Verified account" class="bi bi-check2-circle"></i>' if details['verified'] else '<i rel="tooltip" title="Unverified account" class="bi bi-slash-circle"></i>',
+			'protected': '<i rel="tooltip" title="Protected account" class="bi bi-lock-fill"></i>' if details['protected'] else '<i rel="tooltip" title="Unprotected account" class="bi bi-unlock-fill"></i>',
 			#'tweets': user['tweets']
 		}
 		return render(request, 'user.html', context=context)

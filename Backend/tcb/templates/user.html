@@ -2,6 +2,10 @@
 
 {% block content %}
 <script>
+	$(function () {
+		$('[rel="tooltip"]').tooltip()
+	})
+
 	function intToK(x){
 		if(x<1000)return ""+x;
 		if(x>1E6)return ((x/1E6)+"M");
@@ -75,40 +79,60 @@
 	
 </script>
 <div class="row mt-4">
-	<div class="offset-lg-1 col-lg-3 col-sm-12 col-12 text-center shadow p-3 mb-5 bg-body rounded">
-		<div class="row">
+	<div class="offset-lg-1 col-lg-3 col-sm-12 col-12 shadow p-3 mb-5 bg-body rounded">
+		<div class="row text-center">
 			<div class="col-12">
 				<img class="rounded-circle" id="pp" width="144" height="144" src="{{ pp_url }}" onerror="defaultImage(this)"/>
 			</div>
 		</div>
-		<div class="row">
+		<div class="row text-center">
 			<div class="col-12">
 				<h2>
 					{{ name }}
 				</h2>
 			</div>
 		</div>
-		<div class="row">
+		<div class="row text-center mb-3">
 			<div class="col-12">
 				<h5>
 					@{{ username }}
 				</h2>
 			</div>
-		</div>
-
-		<div class="row">
-			<div class="col-12 mt-3">
-				<p> {{ bio }}</p>
+			<div class="row">
+				<div class="col-1 offset-5">
+					{{ verified |safe}}
+				</div>
+				<div class="col-1">
+					{{ protected |safe}}
+				</div>
 			</div>
 		</div>
 
 		<div class="row">
 			<div class="col-12 mt-3">
-				<span id="plocation">📍 {{ location }}</span>
+				<i class="bi bi-blockquote-left" rel="tooltip" title="User bio"></i> {{ bio }}
 			</div>
 		</div>
 
 		<div class="row">
+			<div class="col-12">
+				<i class="bi bi-geo-alt-fill" rel="tooltip" title="Location"></i> {{ location }}
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-12">
+				<i class="bi bi-link" rel="tooltip" title="Profile's url"></i> {{ url }}
+			</div>
+		</div>
+
+		<div class="row mb-3">
+			<div class="col-12">
+				<i class="bi bi-calendar-event" rel="tooltip" title="Account creation"></i> {{ created_at }}
+			</div>
+		</div>
+
+		<div class="row text-center">
 			<div class="col-12 mt-3">
 				<a id="plink" href="https://twitter.com/{{ username }}" target="_blank" rel="noopener noreferrer">
 					<button type="button" class="outlink btn-outline-primary btn">View on Tweeter</button>
