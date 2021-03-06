@@ -14,13 +14,8 @@
 
 	function defaultImage(img) {
 		img.onerror = function() {};
-    	img.src = "https://banner2.cleanpng.com/20180715/yag/kisspng-question-mark-computer-icons-exclamation-mark-desk-question-mark-emoji-5b4bb794264216.8330599815316888521567.jpg"
+		img.src = "https://banner2.cleanpng.com/20180715/yag/kisspng-question-mark-computer-icons-exclamation-mark-desk-question-mark-emoji-5b4bb794264216.8330599815316888521567.jpg"
 	}
-
-	$(document).ready(function() {
-		let history = JSON.parse("{{ history }}".replaceAll('&quot;', '\"'))
-		console.log(history)
-	});
 
 	function followers_chart() {
 		let history = JSON.parse("{{ history }}".replaceAll('&quot;', '\"'))
