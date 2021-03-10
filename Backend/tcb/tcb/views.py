@@ -31,6 +31,7 @@ def user(request, usr_id):
 		likes_count = details['favourites_count'],
 		bio = details['description'],
 		pp_url = details['profile_image_url_https']
+		url = details['url']
 
 		# Get updated informations from twitter API
 		headers = {"Authorization": "Bearer {}".format(bearer_token)}
@@ -50,6 +51,7 @@ def user(request, usr_id):
 			likes_count = user_infos['favourites_count']
 			bio = user_infos['description']
 			pp_url = user_infos['profile_image_url_https'].replace("_normal", "")
+			url = user_infos['url']
 		else:
 			print("Twitter API user info request error: code {}".format(user_request.status_code))
 
