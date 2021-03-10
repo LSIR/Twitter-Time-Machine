@@ -20,7 +20,7 @@
 	function followers_chart() {
 		let history = JSON.parse("{{ history }}".replaceAll('&quot;', '\"'))
 
-		var followers = history.map((x) => {
+		let followers = history.map((x) => {
 			let followers_count = x["details"]["followers_count"]
 			let date = new Date(x["ts"] * 1000)
 			return {t: date, y: followers_count}
@@ -29,9 +29,9 @@
 		followers = followers.sort((a, b) => b.t - a.t)
 
 
-		var ctx = document.getElementById("followersChart").getContext("2d")
+		let ctx = document.getElementById("followersChart").getContext("2d")
 
-		var followersChart = new Chart(ctx, {
+		let followersChart = new Chart(ctx, {
 			type: 'line',
 			data: {
 				datasets: [{
