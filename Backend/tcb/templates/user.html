@@ -18,11 +18,49 @@
 	}
 
 	let charts = {}
+	let tcdata = {}
 
 	function setLogscale(check, cid) {
 		let chart = charts[cid]
-		chart.options.scales.yAxes[0].type = check.checked ? 'logarithmic' : 'linear'
+		chart.options.scales.yAxes[0].type = check ? 'logarithmic' : 'linear'
 		chart.update()
+	}
+
+	function distanceLinePoint(line_p1, line_p2, p) {
+		//https://math.stackexchange.com/questions/422602/convert-two-points-to-line-eq-ax-by-c-0
+		let a = line_p1['y']-line_p2['y']
+		let b = line_p2['t']-line_p1['t']
+		let c = line_p1['t']*line_p2['y']-line_p1['y']*line_p2['t']
+		//https://fr.wikipedia.org/wiki/Distance_d%27un_point_%C3%A0_une_droite
+		return Math.abs(a*p['t']+b*p['y']+c)/Math.sqrt(a*a+b*b) + (line_p1['t'] - p['t']) //added t delta for uniform distrib
+	}
+
+	function triangeArea(line_p1, line_p2, p) {
+		//https://www.mathopenref.com/coordtrianglearea.html
+		return Math.abs(line_p1['t']*(line_p2['y']-p['y']) + line_p2['t']*(p['y']-line_p1['y']) + p['t']*(line_p1['y']-line_p2['y'])) / 2 + (line_p1['t'] - p['t']);
+	}
+
+	function optimizePoints(check, cid, max, startDate, endDate) {
+		let chart = charts[cid]
+		let points = tcdata[cid];
+		if(points.length > max && check) {
+			let newPoints = [points[points.length-1], points[points.length-2]]; //the older points are at end of the array:/
+			let hitterWeight = [];
+			for(let i = 2; i < points.length; i++) {
+				let idx = points.length - i - 1
+				//we make pairs of (index, hittingWeight)
+				hitterWeight.push([idx, triangeArea(points[idx+2], points[idx+1], points[idx])]);
+			}
+			hitterWeight.sort((a,b) => a[1]-b[1]) //sort by hitting weight
+			for(let i = 0; i < max; i++) {
+				newPoints.push(points[hitterWeight[i][0]])
+			}
+			newPoints.sort((a, b) => b.t - a.t)
+			chart.data.datasets[0].data = newPoints
+		} else {
+			chart.data.datasets[0].data = tcdata[cid]
+		}
+		chart.update(0)
 	}
 
 	function makeHistoryChart(divID, data, xaxis, yaxis) {
@@ -30,11 +68,12 @@
 		div.append('<canvas></canvas>');
 		div.append('<div class="row" id="'+divID+'_controls"></div>')
 		let ctx = $("#"+divID + " > canvas")[0].getContext("2d")
+		tcdata[divID] = data
 		let chart = new Chart(ctx, {
 			type: 'line',
 			data: {
 				datasets: [{
-					data: data,
+					data: [],
 					backgroundColor: "rgba(30,129,176, 0.5)"
 				}], 
 			},
@@ -73,14 +112,14 @@
 		})
 
 		charts[divID] = chart 
-
+		optimizePoints(true, divID, 500, 0, Date.now())
 		let controlRow = $("#"+divID+" > .row")
 		controlRow.append('<div class="col-3 form-switch">\
-					<input onchange="setLogscale(this, \''+divID+'\')" class="form-check-input" type="checkbox" id="logscale_'+divID+'">\
+					<input onchange="setLogscale(this.checked, \''+divID+'\')" class="form-check-input" type="checkbox" id="logscale_'+divID+'">\
 					<label class="form-check-label" for="logscale_'+divID+'">Logarithmic scale</label>\
 					</div>')
 		controlRow.append('<div class="col-3 form-switch">\
-					<input checked class="form-check-input" type="checkbox" id="optimize_'+divID+'">\
+					<input onchange="optimizePoints(this.checked, \''+divID+'\', 500, Date.parse(\'01 Jan 1970 00:00:00 GMT\'), Date.now())" checked class="form-check-input" type="checkbox" id="optimize_'+divID+'">\
 					<label class="form-check-label" for="optimize_'+divID+'">Optimize Points</label>\
 					</div>')
 	} 
