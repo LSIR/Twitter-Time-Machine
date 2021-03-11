@@ -17,32 +17,31 @@
 		img.src = "https://banner2.cleanpng.com/20180715/yag/kisspng-question-mark-computer-icons-exclamation-mark-desk-question-mark-emoji-5b4bb794264216.8330599815316888521567.jpg"
 	}
 
-	function followers_chart() {
-		let history = JSON.parse("{{ history }}".replaceAll('&quot;', '\"'))
+	let charts = {}
 
-		let followers = history.map((x) => {
-			let followers_count = x["details"]["followers_count"]
-			let date = new Date(x["ts"] * 1000)
-			return {t: date, y: followers_count}
-		})
+	function setLogscale(check, cid) {
+		let chart = charts[cid]
+		chart.options.scales.yAxes[0].type = check.checked ? 'logarithmic' : 'linear'
+		chart.update()
+	}
 
-		followers = followers.sort((a, b) => b.t - a.t)
-
-
-		let ctx = document.getElementById("followersChart").getContext("2d")
-
-		let followersChart = new Chart(ctx, {
+	function makeHistoryChart(divID, data, xaxis, yaxis) {
+		let div = $("#"+divID)
+		div.append('<canvas></canvas>');
+		div.append('<div class="row" id="'+divID+'_controls"></div>')
+		let ctx = $("#"+divID + " > canvas")[0].getContext("2d")
+		let chart = new Chart(ctx, {
 			type: 'line',
 			data: {
 				datasets: [{
-					data: followers,
+					data: data,
 					backgroundColor: "rgba(30,129,176, 0.5)"
 				}], 
 			},
 			options: {
 				elements: {
 					line: {
-						tension: 0, // disables bezier curves
+						tension: 0, //disables bezier curves
 					}
 				},
 				legend: {
@@ -56,7 +55,7 @@
 						},
 						scaleLabel: {
 							display: true,
-							labelString: "Time",
+							labelString: xaxis,
 							fontSize: 25,
 							fontColor: "rgba(30,129,176, 1)"
 						}
@@ -64,7 +63,7 @@
 					yAxes: [{
 						scaleLabel: {
 							display: true,
-							labelString: "Number of followers",
+							labelString: yaxis,
 							fontSize: 25,
 							fontColor: "rgba(30,129,176, 1)"
 						}
@@ -73,7 +72,29 @@
 			}
 		})
 
-		console.log(followers)
+		charts[divID] = chart 
+
+		let controlRow = $("#"+divID+" > .row")
+		controlRow.append('<div class="col-3 form-switch">\
+					<input onchange="setLogscale(this, \''+divID+'\')" class="form-check-input" type="checkbox" id="logscale_'+divID+'">\
+					<label class="form-check-label" for="logscale_'+divID+'">Logarithmic scale</label>\
+					</div>')
+		controlRow.append('<div class="col-3 form-switch">\
+					<input checked class="form-check-input" type="checkbox" id="optimize_'+divID+'">\
+					<label class="form-check-label" for="optimize_'+divID+'">Optimize Points</label>\
+					</div>')
+	} 
+
+	function followers_chart() {
+		let history = JSON.parse("{{ history }}".replaceAll('&quot;', '\"'))
+
+		let followers = history.map((x) => {
+			let followers_count = x["details"]["followers_count"]
+			let date = new Date(x["ts"] * 1000)
+			return {t: date, y: followers_count}
+		})
+		followers = followers.sort((a, b) => b.t - a.t)
+		makeHistoryChart("followersChart", followers, "Time", "Number of followers");
 	}
 
 	
@@ -163,8 +184,7 @@
 					{{ likes_count }} Likes
 				</h4>
 			</div>
-			<div class="col-12 text-center">
-				<canvas id="followersChart" width="1000" height="600"></canvas>
+			<div class="col-12" id="followersChart">
 				<script>followers_chart();</script>
 			</div>
 		</div>
