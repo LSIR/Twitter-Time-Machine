@@ -26,11 +26,11 @@ def user(request, usr_id):
 		screen_name = details['screen_name']
 		location = details['location']
 		tweet_count = details['statuses_count']
-		following_count = details['friends_count'],
-		followers_count = details['followers_count'],
-		likes_count = details['favourites_count'],
-		bio = details['description'],
-		pp_url = details['profile_image_url_https']
+		following_count = details['friends_count']
+		followers_count = details['followers_count']
+		likes_count = details['favourites_count']
+		bio = details['description']
+		pp_url = details['profile_image_url_https'].replace("_normal", "")
 		url = details['url']
 
 		# Get updated informations from twitter API
