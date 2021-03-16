@@ -77,6 +77,15 @@
 		chart.update(0)
 	}
 
+	function customRadius(context) {
+		let index = context.dataIndex;
+		let value = context.dataset.data[index];
+
+		let peaks = {{ peaks }}
+
+		return peaks.includes(value.t.getTime() / 1000) ?  20 : 5;
+	}
+
 	function makeHistoryChart(divID, data, xaxis, yaxis) {
 		let div = $("#"+divID)
 		div.append('<canvas></canvas>');
@@ -95,6 +104,10 @@
 				elements: {
 					line: {
 						tension: 0, //disables bezier curves
+					},
+					point: {
+						radius : customRadius,
+            			display: true
 					}
 				},
 				legend: {
