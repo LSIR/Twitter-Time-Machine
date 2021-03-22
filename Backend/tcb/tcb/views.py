@@ -24,14 +24,17 @@ def find_peaks(history, metric):
 	done = False
 	window_start = 0
 	window_end = 1
-	while not done: #split the history into 7-days windows
-		start = datetime.fromtimestamp(history[window_start]['ts'])
-		while window_end < len(history)-1 and (datetime.fromtimestamp(history[window_end]['ts']) - start).days < 7:
-			window_end += 1
 
-		if window_end - window_start >= 4: #ignore windows that have too few points, might not be the best thing to do tho
-			windows.append((window_start, window_end))
-		window_start = window_end 
+	history = sorted(history, key=lambda x: x['ts'])
+
+	while not done: #split the history into n-days windows
+		start = datetime.fromtimestamp(history[window_start]['ts'])
+		while window_end < len(history)-1 and ((datetime.fromtimestamp(history[window_end]['ts']) - start).days <= 10 or window_end - window_start < 3):
+			window_end += 1
+			print(start, (datetime.fromtimestamp(history[window_end]['ts'])))
+
+		windows.append((window_start, window_end))
+		window_start = window_end - 1
 		window_end = window_start + 1
 		if window_end >= len(history) - 1:
 			done = True
@@ -41,12 +44,15 @@ def find_peaks(history, metric):
 	deltas = []
 	for (s,e) in windows: #compute how the 'derivative' changes between the start of the window and the end
 		delta_s = (history[s+1]['details'][metric] - history[s]['details'][metric]) / (history[s+1]['ts']-history[s]['ts'] +0.00000001)#this is just to avoid div-by-0
-		delta_e = (history[e]['details'][metric] - history[e-1]['details'][metric]) / (history[e]['ts']-history[e-1]['ts']+0.00000001)
-		deltas.append(abs(delta_e-delta_s))
+		end_time = history[e]['ts']
+		end_value = history[e]['details'][metric]
+		delta_time = end_time-history[s]['ts']
+		expected_linear_value = delta_s * delta_time + history[s]['details'][metric]
+		deltas.append(expected_linear_value-end_value)
 	print(deltas)
 
 	peaks_ts = []
-	for i in range(10):
+	for i in range(5):
 		j = np.argmax(deltas)
 		print(datetime.fromtimestamp(history[(windows[j][0])]['ts']))
 		deltas[j] = 0
