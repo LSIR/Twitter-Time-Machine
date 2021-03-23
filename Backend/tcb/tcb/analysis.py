@@ -4,7 +4,7 @@ import math
 
 def find_peaks(history, metric):
 
-	history = np.array(sorted(list(map(lambda x: (x['ts'], x['details'][metric]), history)), key=lambda x: x[0]))
+	history = np.array(list(map(lambda x: (x['ts'], x['details'][metric]), history)))
 	xs = history[:,0]
 	ys = history[:,1]
 	f = interp1d(xs, ys) #linear interpolation of the metric(time) function

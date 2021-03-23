@@ -60,6 +60,8 @@ def user(request, usr_id):
 		else:
 			print("Twitter API user info request error: code {}".format(user_request.status_code))
 
+
+		user['history'] = sorted(user['history'], key=lambda x: x['ts'])
 		peaks = analysis.find_peaks(user['history'], 'followers_count')
 		tweets = list(database.get_collection("tweets").find({"user_id": user['details']['id_str']}))
 		

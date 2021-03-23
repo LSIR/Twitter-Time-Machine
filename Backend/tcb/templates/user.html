@@ -52,24 +52,31 @@
 	}
 
 	function optimizePoints(cid, max) {
+
+
 		let check = $("#optimize_"+cid)[0].checked
 		let startDate = new Date($('#start'+cid).val()).getTime();
 		let endDate = new Date($('#end'+cid).val()).getTime();
 		let chart = charts[cid]
 		let points = tcdata[cid].filter(x => x.t.getTime() >= startDate && x.t.getTime() <= endDate);
 		if(points.length > max && check) {
-			let newPoints = [points[points.length-1], points[points.length-2]]; //the older points are at end of the array:/
+			let peaks = {{ peaks }}
+			let newPoints = [points[points.length-1]]; //the older points are at end of the array:/
 			let hitterWeight = [];
-			for(let i = 2; i < points.length; i++) {
-				let idx = points.length - i - 1
-				//we make pairs of (index, hittingWeight)
-				hitterWeight.push([idx, triangeArea(points[idx+2], points[idx+1], points[idx])]);
+			for(let i = 1; i < points.length-1; i++) {
+				let idx = points.length-i-1
+				if(peaks.includes(points[idx].t.getTime() / 1000)) {
+					hitterWeight.push([idx, Number.MAX_VALUE]) // enforce that peak points are not optimized
+				} else {
+					//we make pairs of (index, hittingWeight)
+					hitterWeight.push([idx, triangeArea(points[idx+1], points[idx], points[idx-1])]);
+				}
 			}
-			hitterWeight.sort((a,b) => a[1]-b[1]) //sort by hitting weight
+			hitterWeight.sort((a,b) => b[1]-a[1]) //sort by hitting weight
 			for(let i = 0; i < max; i++) {
 				newPoints.push(points[hitterWeight[i][0]])
 			}
-			newPoints.sort((a, b) => b.t - a.t)
+			newPoints.sort((a, b) => a.t - b.t)
 			chart.data.datasets[0].data = newPoints
 		} else {
 			chart.data.datasets[0].data = points
@@ -170,7 +177,7 @@
 			let date = new Date(x["ts"] * 1000)
 			return {t: date, y: followers_count}
 		})
-		followers = followers.sort((a, b) => b.t - a.t)
+		followers = followers.reverse() //server gives us the history in ascending time order, we want the opposite for chart.js
 		makeHistoryChart("followersChart", followers, "Time", "Number of followers");
 	}
 
