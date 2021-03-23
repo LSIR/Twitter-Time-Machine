@@ -4,8 +4,9 @@ import json
 import requests
 import pymongo
 from datetime import datetime
-import numpy as np
 import functools 
+from . import analysis
+
 
 client = pymongo.MongoClient('mongodb://localhost:27017')
 database = client['trollcheck']
@@ -18,48 +19,7 @@ def home(request):
 	}
 	return render(request, 'index.html', context=context)
 
-def find_peaks(history, metric):
 
-	windows = []
-	done = False
-	window_start = 0
-	window_end = 1
-
-	history = sorted(history, key=lambda x: x['ts'])
-
-	while not done: #split the history into n-days windows
-		start = datetime.fromtimestamp(history[window_start]['ts'])
-		while window_end < len(history)-1 and ((datetime.fromtimestamp(history[window_end]['ts']) - start).days <= 10 or window_end - window_start < 3):
-			window_end += 1
-
-		windows.append((window_start, window_end))
-		print(window_start, window_end, round((window_end) - (window_end-window_start)/2)+1)
-		window_start = round((window_end) - (window_end-window_start)/2)+1
-		window_end = window_start + 1
-		if window_end >= len(history) - 1:
-			done = True
-	
-	print(windows)
-
-	deltas = []
-	for (s,e) in windows: #compute how the 'derivative' changes between the start of the window and the end
-		delta_s = (history[s+1]['details'][metric] - history[s]['details'][metric]) / (history[s+1]['ts']-history[s]['ts'] +0.00000001)#this is just to avoid div-by-0
-		end_time = history[e]['ts']
-		end_value = history[e]['details'][metric]
-		delta_time = end_time-history[s]['ts']
-		expected_linear_value = delta_s * delta_time + history[s]['details'][metric]
-		deltas.append(expected_linear_value-end_value)
-	print(deltas)
-
-	max_delta = np.max(deltas)
-	peaks_ts = []
-	while True:
-		j = np.argmax(deltas)
-		if deltas[j] < 0.1*max_delta:
-			break
-		deltas[j] = 0
-		peaks_ts.append(history[(windows[j][0])]['ts'])
-	return peaks_ts
 
 def user(request, usr_id):
 	user = database.get_collection("users").find_one({ "_id": usr_id })
@@ -100,7 +60,7 @@ def user(request, usr_id):
 		else:
 			print("Twitter API user info request error: code {}".format(user_request.status_code))
 
-		peaks = find_peaks(user['history'], 'followers_count')
+		peaks = analysis.find_peaks(user['history'], 'followers_count')
 		tweets = list(database.get_collection("tweets").find({"user_id": user['details']['id_str']}))
 		
 
