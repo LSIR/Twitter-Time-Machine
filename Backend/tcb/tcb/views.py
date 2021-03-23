@@ -31,10 +31,10 @@ def find_peaks(history, metric):
 		start = datetime.fromtimestamp(history[window_start]['ts'])
 		while window_end < len(history)-1 and ((datetime.fromtimestamp(history[window_end]['ts']) - start).days <= 10 or window_end - window_start < 3):
 			window_end += 1
-			print(start, (datetime.fromtimestamp(history[window_end]['ts'])))
 
 		windows.append((window_start, window_end))
-		window_start = window_end - 1
+		print(window_start, window_end, round((window_end) - (window_end-window_start)/2)+1)
+		window_start = round((window_end) - (window_end-window_start)/2)+1
 		window_end = window_start + 1
 		if window_end >= len(history) - 1:
 			done = True
@@ -51,10 +51,12 @@ def find_peaks(history, metric):
 		deltas.append(expected_linear_value-end_value)
 	print(deltas)
 
+	max_delta = np.max(deltas)
 	peaks_ts = []
-	for i in range(5):
+	while True:
 		j = np.argmax(deltas)
-		print(datetime.fromtimestamp(history[(windows[j][0])]['ts']))
+		if deltas[j] < 0.1*max_delta:
+			break
 		deltas[j] = 0
 		peaks_ts.append(history[(windows[j][0])]['ts'])
 	return peaks_ts
