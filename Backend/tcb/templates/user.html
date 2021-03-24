@@ -169,13 +169,13 @@
 
 		if(click_callback !== undefined) {
 			$("#"+divID + " > canvas")[0].onclick = function(evt) {
-				var activePoints = charts[divID].getElementAtEvent(event);
+				let activePoints = charts[divID].getElementAtEvent(event);
 
 				if (activePoints.length > 0) {
-					var clickedDatasetIndex = activePoints[0]._datasetIndex;
-					var clickedElementindex = activePoints[0]._index;
-					var label = charts[divID].data.labels[clickedElementindex];
-					var value = charts[divID].data.datasets[clickedDatasetIndex].data[clickedElementindex]; 
+					let clickedDatasetIndex = activePoints[0]._datasetIndex;
+					let clickedElementindex = activePoints[0]._index;
+					let label = charts[divID].data.labels[clickedElementindex];
+					let value = charts[divID].data.datasets[clickedDatasetIndex].data[clickedElementindex]; 
 					click_callback(value)    
 				}
 			};
@@ -192,7 +192,21 @@
 		})
 		followers = followers.reverse() //server gives us the history in ascending time order, we want the opposite for chart.js
 		makeHistoryChart("followersChart", followers, "Time", "Number of followers", function(v) {
-			alert(v.t)
+			$.ajax("/tweets/{{ username }}?ts="+v.t.getTime() / 1000).done(function(res) {
+				let tweetModal = new bootstrap.Modal(document.getElementById('tweetModal'))
+				let nh = ""
+				res.forEach(function(e) {
+					nh += '<div class="card mb-1">\
+							<div class="card-body">\
+								<h5 class="card-title">'+'</h5>\
+								<h6 class="card-subtitle mb-2 text-muted">'+e.retweet_count+' <i class="bi bi-arrow-left-right"></i> '+e.quote_count+' <i class="bi bi-chat-left-quote"></i> '+e.favorite_count+'<i class="bi bi-heart"></i></h6>\
+								<p class="card-text">'+e.text+'</p>\
+							</div>\
+						</div>'
+				})
+				$("#tweetModalBody").html(nh)
+				tweetModal.show()
+			})
 		});
 	}
 
@@ -293,5 +307,23 @@
 	</div>
 </div>
 
+
+<!-- Modal -->
+<div class="modal fade" id="tweetModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+	  <div class="modal-content">
+		<div class="modal-header">
+		  <h5 class="modal-title" id="exampleModalLabel">Tweets around this date</h5>
+		  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		</div>
+		<div id="tweetModalBody" class="modal-body">
+		  
+		</div>
+		<div class="modal-footer">
+		  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+		</div>
+	  </div>
+	</div>
+  </div>
 {% endblock %}
 

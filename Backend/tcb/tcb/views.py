@@ -91,7 +91,7 @@ def tweets(request, usr_id):
 	user = database.get_collection("users").find_one({ "_id": usr_id })
 	if not user is None:
 		uuid = user['details']['id_str']
-		tweets = database.get_collection('tweets').find({'user_id': '222825239'})
+		tweets = database.get_collection('tweets').find({'user_id': uuid})
 		tweets_no_id = list(map(lambda x: {i:x[i] for i in x if i!='_id'}, tweets))
 		if 'ts' in request.GET:
 			target_ts = int(request.GET['ts'])
