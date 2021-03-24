@@ -1,4 +1,5 @@
 from django.http import HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import render
 import json
 import requests
@@ -64,14 +65,6 @@ def user(request, usr_id):
 		user['history'] = sorted(user['history'], key=lambda x: x['ts'])
 		peaks = analysis.find_peaks(user['history'], 'followers_count')
 		tweets = list(database.get_collection("tweets").find({"user_id": user['details']['id_str']}))
-		
-
-		suspect_tweets = []
-		for p in peaks:
-			t = [] #TODO: Take like 10 tweets instead of just 1
-			t.append(functools.reduce(lambda a, b : a if abs(a['ts']-p) < abs(b['ts']-p) else b, tweets))
-			suspect_tweets.append(t)
-		
 
 		context = {
 			'name': name,
@@ -88,8 +81,20 @@ def user(request, usr_id):
 			'created_at': datetime.strptime(details['created_at'], '%a %b %d %X %z %Y').strftime("%a %b %d %Y at %X"),
 			'verified': '<i rel="tooltip" title="Verified account" class="bi bi-check2-circle"></i>' if details['verified'] else '<i rel="tooltip" title="Unverified account" class="bi bi-slash-circle"></i>',
 			'protected': '<i rel="tooltip" title="Protected account" class="bi bi-lock-fill"></i>' if details['protected'] else '<i rel="tooltip" title="Unprotected account" class="bi bi-unlock-fill"></i>',
-			'tweets': suspect_tweets,
 			'peaks': peaks,
 		}
 		return render(request, 'user.html', context=context)
+	return HttpResponse("User not found :(")
+
+def tweets(request, usr_id):
+	dt = (3*24*60*60)
+	user = database.get_collection("users").find_one({ "_id": usr_id })
+	if not user is None:
+		uuid = user['details']['id_str']
+		tweets = database.get_collection('tweets').find({'user_id': '222825239'})
+		tweets_no_id = list(map(lambda x: {i:x[i] for i in x if i!='_id'}, tweets))
+		if 'ts' in request.GET:
+			target_ts = int(request.GET['ts'])
+			tweets_no_id = list(filter(lambda x: x['ts'] > target_ts-dt and x['ts'] < target_ts+dt, tweets_no_id))
+		return JsonResponse(tweets_no_id, safe=False)
 	return HttpResponse("User not found :(")
