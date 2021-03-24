@@ -23,7 +23,7 @@ def home(request):
 
 
 def user(request, usr_id):
-	user = database.get_collection("users").find_one({ "_id": usr_id })
+	user = database.get_collection("users").find_one({ "_id": usr_id.lower() })
 	if not user is None:
 		details = user['details']
 
@@ -88,7 +88,7 @@ def user(request, usr_id):
 
 def tweets(request, usr_id):
 	dt = (3*24*60*60)
-	user = database.get_collection("users").find_one({ "_id": usr_id })
+	user = database.get_collection("users").find_one({ "_id": usr_id.lower() })
 	if not user is None:
 		uuid = user['details']['id_str']
 		tweets = database.get_collection('tweets').find({'user_id': uuid})
