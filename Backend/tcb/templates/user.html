@@ -61,7 +61,7 @@
 		let points = tcdata[cid].filter(x => x.t.getTime() >= startDate && x.t.getTime() <= endDate);
 		if(points.length > max && check) {
 			let peaks = {{ peaks }}
-			let newPoints = [points[points.length-1]]; //the older points are at end of the array:/
+			let newPoints = [points[points.length-1], points[0]]; //the older points are at end of the array:/
 			let hitterWeight = [];
 			for(let i = 1; i < points.length-1; i++) {
 				let idx = points.length-i-1
@@ -93,7 +93,7 @@
 		return peaks.includes(value.t.getTime() / 1000) ?  20 : 5;
 	}
 
-	function makeHistoryChart(divID, data, xaxis, yaxis) {
+	function makeHistoryChart(divID, data, xaxis, yaxis, click_callback) {
 		let div = $("#"+divID)
 		div.append('<canvas></canvas>');
 		div.append('<div class="row" id="'+divID+'_controls"></div>')
@@ -166,7 +166,20 @@
 								<input onchange="optimizePoints(\''+divID+'\', 500)" type="date" id="end'+divID+'" value="'+maxDate+'" min="'+minDate+'" max="'+maxDate+'">\
 							</div>')
 		optimizePoints(divID, 500)
-		
+
+		if(click_callback !== undefined) {
+			$("#"+divID + " > canvas")[0].onclick = function(evt) {
+				var activePoints = charts[divID].getElementAtEvent(event);
+
+				if (activePoints.length > 0) {
+					var clickedDatasetIndex = activePoints[0]._datasetIndex;
+					var clickedElementindex = activePoints[0]._index;
+					var label = charts[divID].data.labels[clickedElementindex];
+					var value = charts[divID].data.datasets[clickedDatasetIndex].data[clickedElementindex]; 
+					click_callback(value)    
+				}
+			};
+		}
 	} 
 
 	function followers_chart() {
@@ -178,7 +191,9 @@
 			return {t: date, y: followers_count}
 		})
 		followers = followers.reverse() //server gives us the history in ascending time order, we want the opposite for chart.js
-		makeHistoryChart("followersChart", followers, "Time", "Number of followers");
+		makeHistoryChart("followersChart", followers, "Time", "Number of followers", function(v) {
+			alert(v.t)
+		});
 	}
 
 	
