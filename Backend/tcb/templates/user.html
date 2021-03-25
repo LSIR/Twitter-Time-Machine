@@ -182,6 +182,42 @@
 		}
 	} 
 
+	let tweets = []
+	function sort_tweets(show) {
+		let nh = ""
+		if($("#tw_sort").val() == 0) { //sort by impact
+			tweets = tweets.sort((b,a) => 
+				((a.retweet_count == undefined ? 0 : a.retweet_count)
+				+ (a.quote_count == undefined ? 0 : a.quote_count)
+				+ (a.favorite_count == undefined ? 0 : a.favorite_count))
+				- ((b.retweet_count == undefined ? 0 : b.retweet_count)
+				+ (b.quote_count == undefined ? 0 : b.quote_count)
+				+ (b.favorite_count == undefined ? 0 : b.favorite_count))
+			)
+		} else if ($("#tw_sort").val() == 1) { //sort by date
+			tweets = tweets.sort((a,b) => a.ts-b.ts) 
+		}
+		tweets.forEach(function(e) {
+					let rts = (e.retweet_count !== undefined ? e.retweet_count : '?') +' <i class="bi bi-arrow-left-right"></i> '
+					let quotes = (e.quote_count !== undefined ? e.quote_count : '?')+' <i class="bi bi-chat-left-quote"></i> '
+					let favs = (e.favorite_count!== undefined ? e.favorite_count : '?')+' <i class="bi bi-heart"></i>'
+					
+					let date = new Date(e.ts * 1000)
+					nh += '<div class="card mb-1">\
+						<div class="card-body">\
+							<h6 class="card-title">'+rts+quotes+favs+'</h6>\
+							<h6 class="card-subtitle mb-2 text-muted">'+date+'</h6>\
+							<p class="card-text">'+e.text+'</p>\
+						</div>\
+					</div>'
+				})
+		$("#tweetModalBody").html(nh)
+		if(show) {
+			let tweetModal = new bootstrap.Modal(document.getElementById('tweetModal'))
+			tweetModal.show()
+		}
+	}
+
 	function followers_chart() {
 		let history = JSON.parse("{{ history }}".replaceAll('&quot;', '\"'))
 
@@ -193,19 +229,8 @@
 		followers = followers.reverse() //server gives us the history in ascending time order, we want the opposite for chart.js
 		makeHistoryChart("followersChart", followers, "Time", "Number of followers", function(v) {
 			$.ajax("/tweets/{{ username }}?ts="+v.t.getTime() / 1000).done(function(res) {
-				let tweetModal = new bootstrap.Modal(document.getElementById('tweetModal'))
-				let nh = ""
-				res.forEach(function(e) {
-					nh += '<div class="card mb-1">\
-							<div class="card-body">\
-								<h5 class="card-title">'+'</h5>\
-								<h6 class="card-subtitle mb-2 text-muted">'+e.retweet_count+' <i class="bi bi-arrow-left-right"></i> '+e.quote_count+' <i class="bi bi-chat-left-quote"></i> '+e.favorite_count+'<i class="bi bi-heart"></i></h6>\
-								<p class="card-text">'+e.text+'</p>\
-							</div>\
-						</div>'
-				})
-				$("#tweetModalBody").html(nh)
-				tweetModal.show()
+				tweets = res
+				sort_tweets(true)
 			})
 		});
 	}
@@ -316,8 +341,19 @@
 		  <h5 class="modal-title" id="exampleModalLabel">Tweets around this date</h5>
 		  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 		</div>
-		<div id="tweetModalBody" class="modal-body">
-		  
+		<div class="modal-body">
+			<div class="offset-6 col-6 mb-3">
+				<div class="row">
+					<label for="sort" class="col-3 col-form-label">Sort by</label>
+					<div class="col-9">
+						<select id="tw_sort" class="form-select" onchange="sort_tweets(false)">
+							<option selected value="0">Impact</option>
+							<option value="1">Date</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<div id="tweetModalBody"></div>
 		</div>
 		<div class="modal-footer">
 		  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
