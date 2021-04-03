@@ -1,6 +1,36 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
+<style> /* set the CSS */
+	
+	path { 
+		stroke: steelblue;
+		stroke-width: 3;
+		fill: none;
+	}
+	
+	.axis path,
+	.axis line {
+		fill: none;
+		stroke: grey;
+		stroke-width: 2;
+		shape-rendering: crispEdges;
+	}
+
+
+	div.tooltip {	
+		position: absolute;			
+		text-align: center;							
+		padding: 2px;				
+		font: 12px sans-serif;		
+		background: rgb(32, 32, 32);	
+		color: white;
+		border: 0px;		
+		border-radius: 8px;			
+		pointer-events: none;			
+	}
+	
+</style>
 <script>
 	Date.prototype.yyyymmdd = function() {
 		var mm = this.getMonth() + 1; // getMonth() is zero-based
@@ -17,24 +47,9 @@
 		$('[rel="tooltip"]').tooltip()
 	})
 
-	function intToK(x){
-		if(x<1000)return ""+x;
-		if(x>1E6)return ((x/1E6)+"M");
-		return ((x/1000.0)+"K");
-	}
-
 	function defaultImage(img) {
 		img.onerror = function() {};
 		img.src = "https://banner2.cleanpng.com/20180715/yag/kisspng-question-mark-computer-icons-exclamation-mark-desk-question-mark-emoji-5b4bb794264216.8330599815316888521567.jpg"
-	}
-
-	let charts = {}
-	let tcdata = {}
-
-	function setLogscale(check, cid) {
-		let chart = charts[cid]
-		chart.options.scales.yAxes[0].type = check ? 'logarithmic' : 'linear'
-		chart.update()
 	}
 
 	function distanceLinePoint(line_p1, line_p2, p) {
@@ -84,104 +99,6 @@
 		chart.update(0)
 	}
 
-	function customRadius(context) {
-		let index = context.dataIndex;
-		let value = context.dataset.data[index];
-
-		let peaks = {{ peaks }}
-
-		return peaks.includes(value.t.getTime() / 1000) ?  20 : 5;
-	}
-
-	function makeHistoryChart(divID, data, xaxis, yaxis, click_callback) {
-		let div = $("#"+divID)
-		div.append('<canvas></canvas>');
-		div.append('<div class="row" id="'+divID+'_controls"></div>')
-		let ctx = $("#"+divID + " > canvas")[0].getContext("2d")
-		tcdata[divID] = data
-		let chart = new Chart(ctx, {
-			type: 'line',
-			data: {
-				datasets: [{
-					data: [],
-					backgroundColor: "rgba(30,129,176, 0.5)"
-				}], 
-			},
-			options: {
-				elements: {
-					line: {
-						tension: 0, //disables bezier curves
-					},
-					point: {
-						radius : customRadius,
-            			display: true
-					}
-				},
-				legend: {
-					display: false
-				},
-				scales: {
-					xAxes: [{
-						type: 'time',
-						time: {
-							unit: 'year'
-						},
-						scaleLabel: {
-							display: true,
-							labelString: xaxis,
-							fontSize: 25,
-							fontColor: "rgba(30,129,176, 1)"
-						}
-					}],
-					yAxes: [{
-						scaleLabel: {
-							display: true,
-							labelString: yaxis,
-							fontSize: 25,
-							fontColor: "rgba(30,129,176, 1)"
-						}
-					}]
-				}
-			}
-		})
-
-		charts[divID] = chart 
-		let controlRow = $("#"+divID+" > .row")
-		controlRow.append('<div class="offset-1 col-2 form-switch">\
-					<input onchange="setLogscale(this.checked, \''+divID+'\')" class="form-check-input" type="checkbox" id="logscale_'+divID+'">\
-					<label class="form-check-label" for="logscale_'+divID+'">Logarithmic scale</label>\
-					</div>')
-		controlRow.append('<div class="col-2 form-switch">\
-					<input onchange="optimizePoints(\''+divID+'\', 500)" checked class="form-check-input" type="checkbox" id="optimize_'+divID+'">\
-					<label class="form-check-label" for="optimize_'+divID+'">Optimize Points</label>\
-					</div>')
-		let minDate = new Date(data[data.length-1].t).yyyymmdd()
-		let maxDate = new Date(data[0].t).yyyymmdd();
-		controlRow.append('<div class="col-3">\
-								<label for="start'+divID+'">Start Date</label>\
-								<input onchange="optimizePoints(\''+divID+'\', 500)" type="date" id="start'+divID+'" value="'+minDate+'" min="'+minDate+'" max="'+maxDate+'">\
-							</div>')
-		controlRow.append('<div class="col-3">\
-								<label for="end'+divID+'">End Date</label>\
-								<input onchange="optimizePoints(\''+divID+'\', 500)" type="date" id="end'+divID+'" value="'+maxDate+'" min="'+minDate+'" max="'+maxDate+'">\
-							</div>')
-		optimizePoints(divID, 500)
-
-		if(click_callback !== undefined) {
-			$("#"+divID + " > canvas")[0].onclick = function(evt) {
-				let activePoints = charts[divID].getElementAtEvent(event);
-
-				if (activePoints.length > 0) {
-					let clickedDatasetIndex = activePoints[0]._datasetIndex;
-					let clickedElementindex = activePoints[0]._index;
-					let label = charts[divID].data.labels[clickedElementindex];
-					let value = charts[divID].data.datasets[clickedDatasetIndex].data[clickedElementindex]; 
-					click_callback(value)    
-				}
-			};
-		}
-	} 
-
 	let tweets = []
 	function sort_tweets(show) {
 		let nh = ""
@@ -217,120 +134,114 @@
 			tweetModal.show()
 		}
 	}
-
-	function followers_chart() {
-		let history = JSON.parse("{{ history }}".replaceAll('&quot;', '\"'))
-
-		let followers = history.map((x) => {
-			let followers_count = x["details"]["followers_count"]
-			let date = new Date(x["ts"] * 1000)
-			return {t: date, y: followers_count}
-		})
-		followers = followers.reverse() //server gives us the history in ascending time order, we want the opposite for chart.js
-		makeHistoryChart("followersChart", followers, "Time", "Number of followers", function(v) {
-			$.ajax("/tweets/{{ username }}?ts="+v.t.getTime() / 1000).done(function(res) {
-				tweets = res
-				sort_tweets(true)
-			})
-		});
-	}
-
 	
 </script>
-<div class="row mt-4">
-	<div class="offset-lg-1 col-lg-3 col-sm-12 col-12 shadow p-3 mb-5 bg-body rounded">
-		<div class="row text-center">
-			<div class="col-12">
-				<img class="rounded-circle" id="pp" width="144" height="144" src="{{ pp_url }}" onerror="defaultImage(this)"/>
+  
+<div class="row">
+	<div class="col-lg-12 col-sm-12 col-12 shadow p-3 mb-3 bg-body rounded">
+		<div class="row">
+			<div class="offset-1 col-2">
+				<img class="rounded" id="pp" width="160" height="160" src="{{ pp_url }}" onerror="defaultImage(this)"/>
 			</div>
-		</div>
-		<div class="row text-center">
-			<div class="col-12">
+			<div class="col-2">
 				<h2>
 					{{ name }}
 				</h2>
-			</div>
-		</div>
-		<div class="row text-center mb-3">
-			<div class="col-12">
 				<h5>
 					@{{ username }}
-				</h2>
-			</div>
-			<div class="row">
-				<div class="col-1 offset-5">
-					{{ verified |safe}}
+				</h5>
+				<div class="row">
+					<div class="col-1">
+						{{ verified |safe}}
+					</div>
+					<div class="col-1">
+						{{ protected |safe}}
+					</div>
 				</div>
-				<div class="col-1">
-					{{ protected |safe}}
+				<div class="col-12 mt-3">
+					<a id="plink" href="https://twitter.com/{{ username }}" target="_blank" rel="noopener noreferrer">
+						<button type="button" class="outlink btn-outline-primary btn">View on Tweeter</button>
+					</a>
+				</div>
+			</div>
+			<div class="col-3">
+				<div class="col-12 mt-3">
+					<i class="bi bi-blockquote-left" rel="tooltip" title="User bio"></i> {{ bio }}
+				</div>
+				<div class="col-12">
+					<i class="bi bi-geo-alt-fill" rel="tooltip" title="Location"></i> {{ location }}
+				</div>
+				<div class="col-12">
+					<i class="bi bi-link" rel="tooltip" title="Profile's url"></i> {{ url }}
+				</div>
+				<div class="col-12">
+					<i class="bi bi-calendar-event" rel="tooltip" title="Account creation"></i> {{ created_at }}
 				</div>
 			</div>
 		</div>
-
-		<div class="row">
-			<div class="col-12 mt-3">
-				<i class="bi bi-blockquote-left" rel="tooltip" title="User bio"></i> {{ bio }}
-			</div>
-		</div>
-
-		<div class="row">
-			<div class="col-12">
-				<i class="bi bi-geo-alt-fill" rel="tooltip" title="Location"></i> {{ location }}
-			</div>
-		</div>
-
-		<div class="row">
-			<div class="col-12">
-				<i class="bi bi-link" rel="tooltip" title="Profile's url"></i> {{ url }}
-			</div>
-		</div>
-
-		<div class="row mb-3">
-			<div class="col-12">
-				<i class="bi bi-calendar-event" rel="tooltip" title="Account creation"></i> {{ created_at }}
-			</div>
-		</div>
-
-		<div class="row text-center">
-			<div class="col-12 mt-3">
-				<a id="plink" href="https://twitter.com/{{ username }}" target="_blank" rel="noopener noreferrer">
-					<button type="button" class="outlink btn-outline-primary btn">View on Tweeter</button>
-				</a>
-			</div>
-		</div>
-		
-	</div>
-	<div class="col-lg-8 col-sm-12" id="profile-secondary">
-		<div class="row">
-			<div class="col-3 text-center">
+		<div class="row mt-5 text-center">
+			<div class="col-3">
 				<h4>
 					{{ tweet_count }} Tweets
 				</h4>
 			</div>
-			<div class="col-3 text-center">
+			<div class="col-3">
 				<h4>
 					{{ following_count }} Following
 				</h4>
 			</div>
-			<div class="col-3 text-center">
+			<div class="col-3">
 				<h4>
 					{{ followers_count }} Followers
 				</h4>
 			</div>
-			<div class="col-3 text-center">
+			<div class="col-3">
 				<h4>
 					{{ likes_count }} Likes
 				</h4>
 			</div>
-			<div class="col-12" id="followersChart">
-				<script>followers_chart();</script>
+		</div>
+	</div>
+	<div class="col-lg-12 col-sm-12" id="profile-secondary">
+		<ul class="nav nav-tabs" id="myTab" role="tablist">
+			<li class="nav-item" role="presentation">
+				<button class="nav-link active" id="followers-tab" data-bs-toggle="tab" data-bs-target="#followers" type="button" role="tab" aria-controls="followers" aria-selected="true">Followers</button>
+			</li>
+			<li class="nav-item" role="presentation">
+				<button class="nav-link" id="tweets-tab" data-bs-toggle="tab" data-bs-target="#tweets" type="button" role="tab" aria-controls="tweets" aria-selected="false">Tweets</button>
+			</li>
+			<li class="nav-item" role="presentation">
+				<button class="nav-link" id="attributes-tab" data-bs-toggle="tab" data-bs-target="#attributes" type="button" role="tab" aria-controls="attributes" aria-selected="false">Attributes</button>
+			</li>
+			<li class="nav-item" role="presentation">
+				<button class="nav-link" id="deletions-tab" data-bs-toggle="tab" data-bs-target="#deletions" type="button" role="tab" aria-controls="deletions" aria-selected="false">Deletions</button>
+			</li>
+		</ul>
+		<div class="tab-content" id="myTabContent">
+			<div class="tab-pane fade show active" id="followers" role="tabpanel" aria-labelledby="followers-tab">
+				<div class="col-8" id="followers_chart">
+				</div>
 			</div>
+			<div class="tab-pane fade" id="tweets" role="tabpanel" aria-labelledby="tweets-tab">
+				<div class="col-8" id="statuses_chart">
+				</div>
+			</div>
+			<div class="tab-pane fade" id="attributes" role="tabpanel" aria-labelledby="attributes-tab">...</div>
+			<div class="tab-pane fade" id="deletions" role="tabpanel" aria-labelledby="deletions-tab">...</div>
 		</div>
 	</div>
 	<div class="offset-lg-1 col-lg-11 col-sm-12">
-		And some more here
+		...
 	</div>
 </div>
+
+{% load static %}
+<script src="{% static 'tc-chart.js' %}"></script> 
+<script>
+	let history_raw = JSON.parse("{{ history }}".replaceAll('&quot;', '\"'))
+	tcMakeHistoryChart('#followers_chart', history_raw, 'followers_count', 'x', 'y')
+	tcMakeHistoryChart('#statuses_chart', history_raw, 'statuses_count', 'x', 'y')
+</script>
 
 
 <!-- Modal -->
