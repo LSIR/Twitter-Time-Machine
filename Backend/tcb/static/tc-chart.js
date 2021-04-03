@@ -1,11 +1,19 @@
 const formatTime = d3.timeFormat("%e %B %Y");
-// 2. Use the margin convention practice 
+
+function getWidthSafe(elem) {
+	let element = $(elem).clone();
+	element.css({ visibility: 'hidden' });
+	$("#myTabContent").append(element);
+	let width = element.outerWidth();
+	element.remove();
+	return width;
+}
 
 function tcMakeHistoryChart(divID, raw_data, metric, xaxis, yaxis) {
-	//TODO: Auto margins
-	var margin = {top: 50, right: 50, bottom: 50, left: 50}
-	, width = window.innerWidth - margin.left - margin.right // Use the window's width 
-	, height = window.innerHeight - margin.top - margin.bottom; // Use the window's height
+	let jq_div = $(divID)
+	let margin = {top: 50, right: 50, bottom: 50, left: 50}
+	, width = getWidthSafe(jq_div) - margin.left - margin.right // Use the window's width 
+	, height = jq_div.height() - margin.top - margin.bottom; // Use the window's height
 
 	let history = raw_data.map((x) => {
 		let metrics = x["details"][metric]
@@ -19,30 +27,36 @@ function tcMakeHistoryChart(divID, raw_data, metric, xaxis, yaxis) {
 	// The number of datapoints
 	let n = (history).length
 	// 5. X scale will use the index of our data
-	var xScale = d3.scaleTime()
+	let xScale = d3.scaleTime()
 		.domain([history[0].x, history[n-1].x]) // input
 		.range([0, width]); // output
 
 	// 6. Y scale will use the randomly generate number 
-	var yScale = d3.scaleLinear()
+	let yScale = d3.scaleLinear()
 		.domain([min, max]) // input 
 		.range([height, 0]); // output 
 
 	// 7. d3's line generator
-	var line = d3.line()
+	let line = d3.area()
 		.x(function(d) { return xScale(d.x); }) // set the x values for the line generator
-		.y(function(d) { return yScale(d.y); }) // set the y values for the line generator 
+		.y1(function(d) { return yScale(d.y); }) // set the y values for the line generator 
+		.y0(height)
 		.curve(d3.curveMonotoneX) // apply smoothing to the line
 
 	// 8. An array of objects of length N. Each object has key -> value pair, the key being "y" and the value is a random number
-	var dataset = history
-	//d3.range(n).map(function(d) { return {"y": d3.randomUniform(1)() } })
+	let dataset = history
 
 	// 1. Add the SVG to the page and employ #2
-	var svg = d3.select(divID).append("svg")
-		.attr("width", width + margin.left + margin.right)
-		.attr("height", height + margin.top + margin.bottom)
-	.append("g")
+	let svg = d3.select(divID)
+		.append("div")
+		.classed("svg-container", true)
+		.append("svg")
+		//.attr("width", width + margin.left + margin.right)
+		//.attr("height", height + margin.top + margin.bottom)
+		.attr("preserveAspectRatio", "xMinYMin meet")
+		.attr("viewBox", "0 0 "+(width+margin.left)+" "+(height+2*margin.top))
+		.classed("svg-content-responsive", true)
+		.append("g")
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 	// 3. Call the x axis in a group tag
@@ -62,7 +76,7 @@ function tcMakeHistoryChart(divID, raw_data, metric, xaxis, yaxis) {
 		.attr("class", "line") // Assign a class for styling 
 		.attr("d", line); // 11. Calls the line generator 
 
-	var div = d3.select("body").append("div")	
+	let div = d3.select("body").append("div")	
     	.attr("class", "tooltip")				
     	.style("opacity", 0);
 

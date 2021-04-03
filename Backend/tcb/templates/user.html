@@ -6,15 +6,29 @@
 	path { 
 		stroke: steelblue;
 		stroke-width: 3;
-		fill: none;
+		fill: steelblue;
 	}
 	
 	.axis path,
 	.axis line {
-		fill: none;
 		stroke: grey;
 		stroke-width: 2;
 		shape-rendering: crispEdges;
+		fill: none;
+	}
+	.svg-container {
+		display: inline-block;
+		position: relative;
+		width: 100%;
+		padding-bottom: 100%; /* aspect ratio */
+		vertical-align: top;
+		overflow: hidden;
+	}
+	.svg-content-responsive {
+		display: inline-block;
+		position: absolute;
+		top: 10px;
+		left: 0;
 	}
 
 
@@ -164,7 +178,7 @@
 					</a>
 				</div>
 			</div>
-			<div class="col-3">
+			<div class="col-7">
 				<div class="col-12 mt-3">
 					<i class="bi bi-blockquote-left" rel="tooltip" title="User bio"></i> {{ bio }}
 				</div>
@@ -179,7 +193,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="row mt-5 text-center">
+		<div class="row mt-2 text-center">
 			<div class="col-3">
 				<h4>
 					{{ tweet_count }} Tweets
@@ -219,11 +233,11 @@
 		</ul>
 		<div class="tab-content" id="myTabContent">
 			<div class="tab-pane fade show active" id="followers" role="tabpanel" aria-labelledby="followers-tab">
-				<div class="col-8" id="followers_chart">
+				<div class="col-8" style="height: 500px" id="followers_chart">
 				</div>
 			</div>
 			<div class="tab-pane fade" id="tweets" role="tabpanel" aria-labelledby="tweets-tab">
-				<div class="col-8" id="statuses_chart">
+				<div class="col-8" style="height: 500px" id="statuses_chart">
 				</div>
 			</div>
 			<div class="tab-pane fade" id="attributes" role="tabpanel" aria-labelledby="attributes-tab">...</div>
