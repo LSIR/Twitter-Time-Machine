@@ -51,13 +51,29 @@ function tcMakeHistoryChart(divID, raw_data, metric, xaxis, yaxis) {
 		.append("div")
 		.classed("svg-container", true)
 		.append("svg")
-		//.attr("width", width + margin.left + margin.right)
-		//.attr("height", height + margin.top + margin.bottom)
 		.attr("preserveAspectRatio", "xMinYMin meet")
 		.attr("viewBox", "0 0 "+(width+margin.left)+" "+(height+2*margin.top))
 		.classed("svg-content-responsive", true)
 		.append("g")
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+
+	//Add background grid
+	svg.append("g")
+		.attr("class", "grid")
+		.attr("transform", "translate(0," + height + ")")
+		.call(d3.axisBottom(xScale)
+			.tickSize(-height)
+			.tickFormat("")
+		);
+
+	svg.append("g")
+		.attr("class", "grid")
+		.call(d3.axisLeft(yScale).ticks(5)
+			.tickSize(-width)
+			.tickFormat("")
+		);
 
 	// 3. Call the x axis in a group tag
 	svg.append("g")
