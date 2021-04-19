@@ -8,7 +8,10 @@ function tcMakeHistoryChart(divID, raw_data, metric, xaxis, yaxis) {
 		return {x: date, y: metrics}
 	})
 
-	let builder = new TCChartBuilder(LINE_CHART);
+	let builder = new TCChartBuilder(DOTTED_LINE_CHART);
+	let div = d3.select("body").append("div")	
+    	.attr("class", "tooltip")				
+    	.style("opacity", 0);
 	let chart = builder
 		.setParentDiv($(divID))
 		.setData(history)
@@ -18,7 +21,23 @@ function tcMakeHistoryChart(divID, raw_data, metric, xaxis, yaxis) {
 		.setXAxisScaleDomain(SCALE_EXTENT)
 		.setYAxisScale(LINEAR_SCALE)
 		.setYAxisScaleDomain(SCALE_ZERO_MAX)
-		
+		.setHoverEvent(
+			function(d) {		
+				div.transition()		
+					.duration(200)		
+					.style("opacity", .9);		
+				div.html(d.y +'<br/>'+formatTime(d.x))	
+					.style("left", (d3.event.pageX) + "px")		
+					.style("top", (d3.event.pageY - 28) + "px");	
+			}
+		)
+		.setOutEvent(
+			function(d) {		
+				div.transition()		
+					.duration(500)		
+					.style("opacity", 0);	
+			}
+		)
 		.build();
 
 	/*

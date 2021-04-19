@@ -1,5 +1,6 @@
 const LINE_CHART 		= 	0x1;
 const BAR_CHART 		= 	0x2;
+const DOTTED_LINE_CHART = 	0x3;
 
 const TIME_SCALE 		= 	0x10;
 const LINEAR_SCALE 		= 	0x20;
@@ -21,8 +22,16 @@ function getWidthSafe(elem, parentID) {
 class TCChart {
 
 
-	constructor(parentDiv, width, height ,margin, xScale, yScale, data, content) {
-		let svg = d3.select('#'+parentDiv.attr('id'))
+	constructor(parentDiv, width, height ,margin, xScale, yScale, data, content, dotted, hover_evt, out_evt) {
+		this.width = width;
+		this.height = height;
+		this.margin = margin;
+		this.xScale = xScale;
+		this.yScale = yScale;
+		this.data = data;
+		this.content = content;
+		this.dotted = dotted;
+		this.svg = d3.select('#'+parentDiv.attr('id'))
 			.append("div")
 			.classed("svg-container", true)
 			.append("svg")
@@ -34,8 +43,7 @@ class TCChart {
 
 
 
-		//Add background grid
-		svg.append("g")
+		this.x_grid = this.svg.append("g")
 			.attr("class", "grid")
 			.attr("transform", "translate(0," + height + ")")
 			.call(d3.axisBottom(xScale)
@@ -43,7 +51,7 @@ class TCChart {
 				.tickFormat("")
 			);
 
-		svg.append("g")
+		this.y_grid = this.svg.append("g")
 			.attr("class", "grid")
 			.call(d3.axisLeft(yScale).ticks(5)
 				.tickSize(-width)
@@ -51,21 +59,39 @@ class TCChart {
 			);
 
 		// 3. Call the x axis in a group tag
-		let xAxis = svg.append("g")
+		this.xAxis = svg.append("g")
 			.attr("class", "x axis")
 			.attr("transform", "translate(0," + height + ")")
 			.call(d3.axisBottom(xScale)); // Create an axis component with d3.axisBottom
 
 		// 4. Call the y axis in a group tag
-		let yAxis = svg.append("g")
+		this.yAxis = svg.append("g")
 			.attr("class", "y axis")
 			.call(d3.axisLeft(yScale).ticks(5)); // Create an axis component with d3.axisLeft
 
 		// 9. Append the path, bind the data, and call the line generator 
-		svg.append("path")
+		this.path = svg.append("path")
 			.datum(data) // 10. Binds data to the line 
 			.attr("class", "line") // Assign a class for styling 
 			.attr("d", content); // 11. Calls the line generator 
+		
+		if(dotted) {
+			svg.selectAll(".dot")
+				.data(data)
+				.enter().append("circle") // Uses the enter().append() method
+					.attr("class", "dot") // Assign a class for styling
+					.attr("cx", function(d) { return xScale(d.x) })
+					.attr("cy", function(d) { return yScale(d.y) })
+					.attr("r", 4)
+					.attr('opacity', 0.3)
+					.style('fill', 'blue')
+					.on("mouseover", hover_evt)					
+					.on("mouseout", out_evt);
+		}
+	}
+
+	updateData(newData) {
+
 	}
 }
 
@@ -74,9 +100,19 @@ class TCChartBuilder {
 	constructor(type) {
 		this.type = type;
 		this.margin = {top: 0, right: 0, bottom: 0, left: 0}
-		if(type == LINE_CHART) {
+		if(type == LINE_CHART || type == DOTTED_LINE_CHART) {
 			this.internalBuilder = new TCInternalLineChartBuilder();
 		}
+	}
+
+	setHoverEvent(f) {
+		this.hover_evt = f;
+		return this;
+	}
+
+	setOutEvent(f) {
+		this.out_evt = f;
+		return this;
 	}
 
 	setFilled(filled) {
@@ -164,7 +200,7 @@ class TCChartBuilder {
 		
 		let content = this.internalBuilder.build(this.xScale, this.yScale, this.height);
 
-		return new TCChart(this.parentDiv, this.width, this.height, this.margin, this.xScale, this.yScale, this.data, content);
+		return new TCChart(this.parentDiv, this.width, this.height, this.margin, this.xScale, this.yScale, this.data, content, (this.type === DOTTED_LINE_CHART), this.hover_evt, this.out_evt);
 	}
 	
 }
