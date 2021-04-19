@@ -264,6 +264,7 @@
 </div>
 
 {% load static %}
+<script src="{% static 'd3-chart-builder.js' %}"></script> 
 <script src="{% static 'tc-chart.js' %}"></script> 
 <script>
 	let history_raw = JSON.parse("{{ history }}".replaceAll('&quot;', '\"'))
