@@ -22,7 +22,7 @@ function getWidthSafe(elem, parentID) {
 class TCChart {
 
 
-	constructor(parentDiv, width, height ,margin, xScale, yScale, data, content, dotted, hover_evt, out_evt) {
+	constructor(parentDiv, width, height ,margin, xScale, yScale, data, content, dotted, hover_evt, out_evt, internalBuilder) {
 		this.width = width;
 		this.height = height;
 		this.margin = margin;
@@ -31,6 +31,7 @@ class TCChart {
 		this.data = data;
 		this.content = content;
 		this.dotted = dotted;
+		this.internalBuilder = internalBuilder;
 		this.svg = d3.select('#'+parentDiv.attr('id'))
 			.append("div")
 			.classed("svg-container", true)
@@ -59,24 +60,25 @@ class TCChart {
 			);
 
 		// 3. Call the x axis in a group tag
-		this.xAxis = svg.append("g")
+		this.xAxis = this.svg.append("g")
 			.attr("class", "x axis")
 			.attr("transform", "translate(0," + height + ")")
-			.call(d3.axisBottom(xScale)); // Create an axis component with d3.axisBottom
+			.call(d3.axisBottom(xScale))
+			 // Create an axis component with d3.axisBottom
 
 		// 4. Call the y axis in a group tag
-		this.yAxis = svg.append("g")
+		this.yAxis = this.svg.append("g")
 			.attr("class", "y axis")
 			.call(d3.axisLeft(yScale).ticks(5)); // Create an axis component with d3.axisLeft
 
 		// 9. Append the path, bind the data, and call the line generator 
-		this.path = svg.append("path")
+		this.path = this.svg.append("path")
 			.datum(data) // 10. Binds data to the line 
 			.attr("class", "line") // Assign a class for styling 
 			.attr("d", content); // 11. Calls the line generator 
 		
 		if(dotted) {
-			svg.selectAll(".dot")
+			this.svg.selectAll(".dot")
 				.data(data)
 				.enter().append("circle") // Uses the enter().append() method
 					.attr("class", "dot") // Assign a class for styling
@@ -90,8 +92,101 @@ class TCChart {
 		}
 	}
 
-	updateData(newData) {
+	setLogscale(axis, log, axis_domain) {
+		let _scale = undefined;
+		if(!log) {
+			_scale = d3.scaleLinear();
+		} else {
+			_scale = d3.scaleLog();
+		}
+		if(axis_domain == SCALE_EXTENT) {
+			if(axis == 'x') {
+				this.xScale = _scale.domain(d3.extent(this.data, function(d) { return d.x }))
+			} else if(axis == 'y') {
+				this.yScale = _scale.domain(d3.extent(this.data, function(d) { return d.y }))
+			} 
+		} else if(axis_domain == SCALE_ZERO_MAX) {
+			if(axis == 'x') {
+				this.xScale = _scale.domain([0, d3.max(this.data, function(d) { return d.x })])
+			} else if(axis == 'y') {
+				this.yScale = _scale.domain([0, d3.max(this.data, function(d) { return d.y })])
+			} 
+		}
+		this.xScale.range([0, this.width]);
+		this.yScale.range([this.height, 0]);
+		
+		this.yAxis
+			.transition()
+			.duration(500)
+			.call(d3.axisLeft(this.yScale).ticks(5))
+		let _xs = this.xScale;
+		let _ys = this.yScale;
+		if(this.dotted) {
+			this.svg.selectAll(".dot")
+				.transition()
+				.duration(500)
+				.attr("cx", function(d) { return _xs(d.x) })
+				.attr("cy", function(d) { return _ys(d.y) })
+		}
+		let _ib = this.internalBuilder;
+		let _h = this.height
+		this.path.transition()
+			.duration(500)
+			.attr("d", _ib.build(_xs, _ys, _h))
+	}
 
+	updateData(data, x_scale_domain, y_scale_domain, transition_time) {	
+		// Create the X axis:
+		this.data = data;
+		if(x_scale_domain == SCALE_EXTENT) {
+			this.xScale.domain(d3.extent(data, function(d) { return d.x }));
+		} else if(x_scale_domain == SCALE_ZERO_MAX) {
+			this.xScale.domain([0, d3.max(data, function(d) { return d.x })]);
+		}
+		this.xAxis.transition()
+			.duration(transition_time)
+			.call(d3.axisBottom(this.xScale));
+
+		// create the Y axis
+		if(y_scale_domain == SCALE_ZERO_MAX) {
+			this.yScale.domain([0, d3.max(data, function(d) { return d.y  }) ]);
+		} else if(y_scale_domain == SCALE_EXTENT) {
+			this.yScale.domain(d3.extent(data, function(d) { return d.y }));
+		}
+		this.yAxis.transition()
+			.duration(transition_time)
+			.call(d3.axisLeft(this.yScale).ticks(5)); // Create an axis component with d3.axisLeft
+
+		// Update the line
+		//don't have access to "this" inside d3 code...
+		let _xs = this.xScale;
+		let _ys = this.yScale;
+		let _ib = this.internalBuilder;
+		let _h = this.height
+		this.path.datum(data);
+		let _p = this.path
+		this.path
+			.enter()
+			.attr("class","line")
+			.merge(_p)
+			.transition()
+			.duration(transition_time)
+			.attr("d", _ib.build(_xs, _ys, _h))
+
+		if(this.dotted) {
+			this.svg.selectAll(".dot")
+				.data(data)
+				.enter()
+					.attr("class", "dot") // Assign a class for styling
+					.merge(this.svg.selectAll(".dot"))
+					.transition()
+					.duration(transition_time)
+					.attr("cx", function(d) { return _xs(d.x) })
+					.attr("cy", function(d) { return _ys(d.y) })
+					.attr("r", 4)
+					.attr('opacity', 0.3)
+					.style('fill', 'blue')
+		}
 	}
 }
 
@@ -200,7 +295,7 @@ class TCChartBuilder {
 		
 		let content = this.internalBuilder.build(this.xScale, this.yScale, this.height);
 
-		return new TCChart(this.parentDiv, this.width, this.height, this.margin, this.xScale, this.yScale, this.data, content, (this.type === DOTTED_LINE_CHART), this.hover_evt, this.out_evt);
+		return new TCChart(this.parentDiv, this.width, this.height, this.margin, this.xScale, this.yScale, this.data, content, (this.type === DOTTED_LINE_CHART), this.hover_evt, this.out_evt, this.internalBuilder);
 	}
 	
 }
