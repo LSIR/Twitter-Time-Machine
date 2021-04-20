@@ -23,6 +23,8 @@ class TCChart {
 
 
 	constructor(parentDiv, width, height ,margin, xScale, yScale, data, content, dotted, hover_evt, out_evt, internalBuilder) {
+		this.hover_evt = hover_evt;
+		this.out_evt = out_evt;
 		this.width = width;
 		this.height = height;
 		this.margin = margin;
@@ -119,6 +121,10 @@ class TCChart {
 			.transition()
 			.duration(500)
 			.call(d3.axisLeft(this.yScale).ticks(5))
+		this.xAxis
+			.transition()
+			.duration(500)
+			.call(d3.axisBottom(this.xScale));
 		let _xs = this.xScale;
 		let _ys = this.yScale;
 		if(this.dotted) {
@@ -174,18 +180,17 @@ class TCChart {
 			.attr("d", _ib.build(_xs, _ys, _h))
 
 		if(this.dotted) {
+			let _d = this.svg.selectAll(".dot").remove().exit();
 			this.svg.selectAll(".dot")
-				.data(data)
-				.enter()
-					.attr("class", "dot") // Assign a class for styling
-					.merge(this.svg.selectAll(".dot"))
-					.transition()
-					.duration(transition_time)
-					.attr("cx", function(d) { return _xs(d.x) })
-					.attr("cy", function(d) { return _ys(d.y) })
-					.attr("r", 4)
-					.attr('opacity', 0.3)
-					.style('fill', 'blue')
+				.data(data).enter().append("circle")
+				.attr("class", "dot") // Assign a class for styling
+				.attr("cx", function(d) { return _xs(d.x) })
+				.attr("cy", function(d) { return _ys(d.y) })
+				.attr("r", 4)
+				.attr('opacity', 0.3)
+				.style('fill', 'blue')
+				.on("mouseover", this.hover_evt)					
+				.on("mouseout", this.out_evt)
 		}
 	}
 }

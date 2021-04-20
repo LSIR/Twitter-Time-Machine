@@ -55,11 +55,11 @@ function tcMakeHistoryChart(divID, raw_data, metric, xaxis, yaxis) {
 	let maxDate = new Date(history[history.length-1].x).yyyymmdd();
 	controlRow.append('<div class="col-3">\
 							<label for="start'+safeDivID+'">Start Date</label>\
-							<input onchange="optimizePoints(\''+divID+'\', 500)" type="date" id="start'+safeDivID+'" value="'+minDate+'" min="'+minDate+'" max="'+maxDate+'">\
+							<input type="date" id="start'+safeDivID+'" value="'+minDate+'" min="'+minDate+'" max="'+maxDate+'">\
 						</div>')
 	controlRow.append('<div class="col-3">\
 							<label for="end'+safeDivID+'">End Date</label>\
-							<input onchange="optimizePoints(\''+divID+'\', 500)" type="date" id="end'+safeDivID+'" value="'+maxDate+'" min="'+minDate+'" max="'+maxDate+'">\
+							<input type="date" id="end'+safeDivID+'" value="'+maxDate+'" min="'+minDate+'" max="'+maxDate+'">\
 						</div>')
 
 	$('#logscale_'+safeDivID).on('click', function() {
@@ -71,7 +71,17 @@ function tcMakeHistoryChart(divID, raw_data, metric, xaxis, yaxis) {
 			//chart.updateData(history, SCALE_EXTENT, SCALE_ZERO_MAX, 500);
 		}
 	});
-	
+
+	$('#start'+safeDivID).on('change', function() {
+		let startDate = new Date($('#start'+safeDivID).val()).getTime();
+		let nd = history.filter(e => e.x >= startDate);
+		chart.updateData(nd, SCALE_EXTENT, SCALE_EXTENT, 500);
+	})
+	$('#end'+safeDivID).on('change', function() {
+		let endDate = new Date($('#end'+safeDivID).val()).getTime();
+		let nd = history.filter(e => e.x <= endDate);
+		chart.updateData(nd, SCALE_EXTENT, SCALE_EXTENT, 500);
+	})
 }
 
 	
