@@ -42,7 +42,7 @@ def find_peaks(history, metric):
 			break
 		deltas[j] = 0
 		c = len(list(filter(lambda x: (xs[j+1] >= x - dt and xs[j+1] <= x + dt), peaks_ts)))
-		if c > 0:
+		if c > 0: #too close to another peak
 			continue
 		peaks_ts.append(xs[j+1])
 	return (peaks_ts, max_slope, avg_slope)

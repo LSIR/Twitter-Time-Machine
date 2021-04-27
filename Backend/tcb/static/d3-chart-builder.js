@@ -27,7 +27,7 @@ function getWidthSafe(elem, parentID) {
 class TCChart {
 
 
-	constructor(parentDiv, width, height ,margin, xScale, yScale, data, content, dotted, hover_evt, out_evt, internalBuilder, highlighted_pts) {
+	constructor(parentDiv, width, height ,margin, xScale, yScale, data, content, dotted, hover_evt, out_evt, click_evt, internalBuilder, highlighted_pts) {
 		this.hover_evt = hover_evt;
 		this.out_evt = out_evt;
 		this.width = width;
@@ -96,7 +96,8 @@ class TCChart {
 					.attr('opacity',  function(d) { return highlighted_pts.includes(d.x / 1000) ? 0.8 : 0.3})
 					.style('fill', function(d) { return highlighted_pts.includes(d.x / 1000) ? 'red' : 'blue' })
 					.on("mouseover", hover_evt)					
-					.on("mouseout", out_evt);
+					.on("mouseout", out_evt)
+					.on("click", click_evt)
 		}
 	}
 
@@ -198,6 +199,7 @@ class TCChart {
 				.style('fill', function(d) { return _h.includes(d.x) ? 'red' : 'blue' })
 				.on("mouseover", this.hover_evt)					
 				.on("mouseout", this.out_evt)
+				.on("click", this.click_evt)
 		}
 	}
 }
@@ -224,6 +226,11 @@ class TCChartBuilder {
 
 	setOutEvent(f) {
 		this.out_evt = f;
+		return this;
+	}
+
+	setClickEvent(f) {
+		this.click_evt = f;
 		return this;
 	}
 
@@ -312,7 +319,7 @@ class TCChartBuilder {
 		
 		let content = this.internalBuilder.build(this.xScale, this.yScale, this.height);
 
-		return new TCChart(this.parentDiv, this.width, this.height, this.margin, this.xScale, this.yScale, this.data, content, (this.type === DOTTED_LINE_CHART), this.hover_evt, this.out_evt, this.internalBuilder, this.highlighted_pts);
+		return new TCChart(this.parentDiv, this.width, this.height, this.margin, this.xScale, this.yScale, this.data, content, (this.type === DOTTED_LINE_CHART), this.hover_evt, this.out_evt, this.click_evt, this.internalBuilder, this.highlighted_pts);
 	}
 	
 }

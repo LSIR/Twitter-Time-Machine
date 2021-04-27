@@ -245,8 +245,24 @@
 <script src="{% static 'tc-chart.js' %}"></script> 
 <script>
 	let history_raw = JSON.parse("{{ history }}".replaceAll('&quot;', '\"'))
-	tcMakeHistoryChart('#followers_chart', history_raw, 'followers_count', {{peaks}})
-	tcMakeHistoryChart('#statuses_chart', history_raw, 'statuses_count', [])
+	tcMakeHistoryChart('#followers_chart', history_raw, 'followers_count', {{peaks}}, function(d) {
+				$.ajax("/tweets/{{ username }}?ts="+(d.x / 1000)).done(function(res) {
+					let tweetModal = new bootstrap.Modal(document.getElementById('tweetModal'))
+					let nh = ""
+					res.forEach(function(e) {
+						nh += '<div class="card mb-1">\
+								<div class="card-body">\
+									<h5 class="card-title">'+'</h5>\
+									<h6 class="card-subtitle mb-2 text-muted">'+e.retweet_count+' <i class="bi bi-arrow-left-right"></i> '+e.quote_count+' <i class="bi bi-chat-left-quote"></i> '+e.favorite_count+'<i class="bi bi-heart"></i></h6>\
+									<p class="card-text">'+e.text+'</p>\
+								</div>\
+							</div>'
+					})
+					$("#tweetModalBody").html(nh)
+					tweetModal.show()
+				})
+			})
+	tcMakeHistoryChart('#statuses_chart', history_raw, 'statuses_count', [], function(d) {})
 </script>
 
 

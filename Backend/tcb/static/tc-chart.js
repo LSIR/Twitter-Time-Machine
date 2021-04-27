@@ -2,7 +2,7 @@ let charts = {}
 
 const MAX_DATAPOINTS = 800
 
-function tcMakeHistoryChart(divID, raw_data, metric, highlighted_points) {
+function tcMakeHistoryChart(divID, raw_data, metric, highlighted_points, click_function) {
 
 	let history = raw_data.map((x) => {
 		let metrics = x["details"][metric]
@@ -40,6 +40,7 @@ function tcMakeHistoryChart(divID, raw_data, metric, highlighted_points) {
 					.style("opacity", 0);	
 			}
 		)
+		.setClickEvent(click_function)
 		.setHighlightedPoints(highlighted_points)
 		.build();
 	
