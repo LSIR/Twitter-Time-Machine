@@ -27,7 +27,7 @@ function getWidthSafe(elem, parentID) {
 class TCChart {
 
 
-	constructor(parentDiv, width, height ,margin, xScale, yScale, data, content, dotted, hover_evt, out_evt, internalBuilder) {
+	constructor(parentDiv, width, height ,margin, xScale, yScale, data, content, dotted, hover_evt, out_evt, internalBuilder, highlighted_pts) {
 		this.hover_evt = hover_evt;
 		this.out_evt = out_evt;
 		this.width = width;
@@ -39,6 +39,7 @@ class TCChart {
 		this.content = content;
 		this.dotted = dotted;
 		this.internalBuilder = internalBuilder;
+		this.highlighted_pts = highlighted_pts;
 		this.svg = d3.select('#'+parentDiv.attr('id'))
 			.append("div")
 			.classed("svg-container", true)
@@ -91,9 +92,9 @@ class TCChart {
 					.attr("class", "dot") // Assign a class for styling
 					.attr("cx", function(d) { return xScale(d.x) })
 					.attr("cy", function(d) { return yScale(d.y) })
-					.attr("r", 4)
-					.attr('opacity', 0.3)
-					.style('fill', 'blue')
+					.attr("r",  function(d) { return highlighted_pts.includes(d.x / 1000) ? 8 : 4})
+					.attr('opacity',  function(d) { return highlighted_pts.includes(d.x / 1000) ? 0.8 : 0.3})
+					.style('fill', function(d) { return highlighted_pts.includes(d.x / 1000) ? 'red' : 'blue' })
 					.on("mouseover", hover_evt)					
 					.on("mouseout", out_evt);
 		}
@@ -186,6 +187,7 @@ class TCChart {
 
 		if(this.dotted) {
 			let _d = this.svg.selectAll(".dot").remove().exit();
+			let _h = this.highlighted_pts;
 			this.svg.selectAll(".dot")
 				.data(data).enter().append("circle")
 				.attr("class", "dot") // Assign a class for styling
@@ -193,7 +195,7 @@ class TCChart {
 				.attr("cy", function(d) { return _ys(d.y) })
 				.attr("r", 4)
 				.attr('opacity', 0.3)
-				.style('fill', 'blue')
+				.style('fill', function(d) { return _h.includes(d.x) ? 'red' : 'blue' })
 				.on("mouseover", this.hover_evt)					
 				.on("mouseout", this.out_evt)
 		}
@@ -208,6 +210,11 @@ class TCChartBuilder {
 		if(type == LINE_CHART || type == DOTTED_LINE_CHART) {
 			this.internalBuilder = new TCInternalLineChartBuilder();
 		}
+	}
+
+	setHighlightedPoints(pts) {
+		this.highlighted_pts = pts;
+		return this;
 	}
 
 	setHoverEvent(f) {
@@ -305,7 +312,7 @@ class TCChartBuilder {
 		
 		let content = this.internalBuilder.build(this.xScale, this.yScale, this.height);
 
-		return new TCChart(this.parentDiv, this.width, this.height, this.margin, this.xScale, this.yScale, this.data, content, (this.type === DOTTED_LINE_CHART), this.hover_evt, this.out_evt, this.internalBuilder);
+		return new TCChart(this.parentDiv, this.width, this.height, this.margin, this.xScale, this.yScale, this.data, content, (this.type === DOTTED_LINE_CHART), this.hover_evt, this.out_evt, this.internalBuilder, this.highlighted_pts);
 	}
 	
 }

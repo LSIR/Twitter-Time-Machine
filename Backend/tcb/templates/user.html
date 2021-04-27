@@ -245,8 +245,8 @@
 <script src="{% static 'tc-chart.js' %}"></script> 
 <script>
 	let history_raw = JSON.parse("{{ history }}".replaceAll('&quot;', '\"'))
-	tcMakeHistoryChart('#followers_chart', history_raw, 'followers_count', 'x', 'y')
-	tcMakeHistoryChart('#statuses_chart', history_raw, 'statuses_count', 'x', 'y')
+	tcMakeHistoryChart('#followers_chart', history_raw, 'followers_count', {{peaks}})
+	tcMakeHistoryChart('#statuses_chart', history_raw, 'statuses_count', [])
 </script>
 
 

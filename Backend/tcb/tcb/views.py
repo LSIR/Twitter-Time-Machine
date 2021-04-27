@@ -64,8 +64,7 @@ def user(request, usr_id):
 
 		user['history'] = sorted(user['history'], key=lambda x: x['ts'])
 		(peaks, max_slope, avg_slope) = analysis.find_peaks(user['history'], 'followers_count')
-		tweets = list(database.get_collection("tweets").find({"user_id": user['details']['id_str']}))
-
+		#tweets = list(database.get_collection("tweets").find({"user_id": user['details']['id_str']}))
 		context = {
 			'name': name,
 			'username': screen_name,

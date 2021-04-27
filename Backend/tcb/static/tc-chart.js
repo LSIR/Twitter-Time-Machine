@@ -2,7 +2,7 @@ let charts = {}
 
 const MAX_DATAPOINTS = 800
 
-function tcMakeHistoryChart(divID, raw_data, metric, xaxis, yaxis) {
+function tcMakeHistoryChart(divID, raw_data, metric, highlighted_points) {
 
 	let history = raw_data.map((x) => {
 		let metrics = x["details"][metric]
@@ -40,6 +40,7 @@ function tcMakeHistoryChart(divID, raw_data, metric, xaxis, yaxis) {
 					.style("opacity", 0);	
 			}
 		)
+		.setHighlightedPoints(highlighted_points)
 		.build();
 	
 	let safeDivID = divID.substr(1);
