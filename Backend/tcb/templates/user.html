@@ -200,6 +200,7 @@
 		<div class="tab-content" id="myTabContent">
 			<div class="tab-pane fade show active" id="followers" role="tabpanel" aria-labelledby="followers-tab">
 				<div class="row" id="followers_chart_row">
+					<h3>Follower Count over Time</h3>
 					<div class="col-8" style="height: 500px" id="followers_chart">
 					</div>
 					<div class="col-4 shadow">
@@ -227,7 +228,15 @@
 				</div>
 			</div>
 			<div class="tab-pane fade" id="tweets" role="tabpanel" aria-labelledby="tweets-tab">
-				<div class="col-8" style="height: 500px" id="statuses_chart">
+				<h3>Tweet Count over Time</h3>
+				<div class="row" id="statuses_chart_row">
+					<div class="col-8" style="height: 500px" id="statuses_chart">
+					</div>
+				</div>
+				<h3>Favourite Count over Time</h3>
+				<div class="row" id="favorites_chart_row">
+					<div class="col-8" style="height: 500px" id="favorites_chart">
+					</div>
 				</div>
 			</div>
 			<div class="tab-pane fade" id="attributes" role="tabpanel" aria-labelledby="attributes-tab">...</div>
@@ -263,6 +272,7 @@
 				})
 			})
 	tcMakeHistoryChart('#statuses_chart', history_raw, 'statuses_count', [], function(d) {})
+	tcMakeHistoryChart('#favorites_chart', history_raw, 'favourites_count', [], function(d) {})
 </script>
 
 

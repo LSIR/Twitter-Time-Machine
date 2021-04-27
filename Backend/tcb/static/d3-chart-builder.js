@@ -92,8 +92,8 @@ class TCChart {
 					.attr("class", "dot") // Assign a class for styling
 					.attr("cx", function(d) { return xScale(d.x) })
 					.attr("cy", function(d) { return yScale(d.y) })
-					.attr("r",  function(d) { return highlighted_pts.includes(d.x / 1000) ? 8 : 4})
-					.attr('opacity',  function(d) { return highlighted_pts.includes(d.x / 1000) ? 0.8 : 0.3})
+					.attr("r",  function(d) { return highlighted_pts.includes(d.x / 1000) ? 10 : 4})
+					.attr('opacity',  function(d) { return highlighted_pts.includes(d.x / 1000) ? 0.8 : 0.4})
 					.style('fill', function(d) { return highlighted_pts.includes(d.x / 1000) ? 'red' : 'blue' })
 					.on("mouseover", hover_evt)					
 					.on("mouseout", out_evt)
@@ -194,9 +194,9 @@ class TCChart {
 				.attr("class", "dot") // Assign a class for styling
 				.attr("cx", function(d) { return _xs(d.x) })
 				.attr("cy", function(d) { return _ys(d.y) })
-				.attr("r", 4)
-				.attr('opacity', 0.3)
-				.style('fill', function(d) { return _h.includes(d.x) ? 'red' : 'blue' })
+				.attr("r",  function(d) { return _h.includes(d.x / 1000) ? 10 : 4})
+				.attr('opacity',  function(d) { return _h.includes(d.x / 1000) ? 0.8 : 0.4})
+				.style('fill', function(d) { return _h.includes(d.x / 1000) ? 'red' : 'blue' })
 				.on("mouseover", this.hover_evt)					
 				.on("mouseout", this.out_evt)
 				.on("click", this.click_evt)
