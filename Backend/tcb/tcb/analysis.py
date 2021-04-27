@@ -11,7 +11,7 @@ def find_peaks(history, metric):
 
 	deltas = []
 	max_slope = 0
-	avg_slope = 0
+	avg_slope = (f(xs[-1])-f(xs[0])) / ((xs[-1]-xs[0]) / (1))
 	dt = (4*24*60*60) #In seconds
 	for i in range(1, len(history)-2):
 		py = f(max(xs[0], xs[i]-dt))
@@ -27,12 +27,10 @@ def find_peaks(history, metric):
 		true_slope = (ny - y) / (dt)
 		if true_slope > max_slope:
 			max_slope = true_slope
-		avg_slope += true_slope
 		delta_time = 2*dt
 		expected_linear_value = slope_p * delta_time + log_py #basically ax + b
 		deltas.append(log_ny-expected_linear_value)
 
-	avg_slope /= len(history)
 	max_delta = np.max(deltas)
 	print(max_delta)
 	peaks_ts = []

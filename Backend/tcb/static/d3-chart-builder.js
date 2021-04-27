@@ -106,19 +106,19 @@ class TCChart {
 		if(!log) {
 			_scale = d3.scaleLinear();
 		} else {
-			_scale = d3.scaleLog();
+			_scale = d3.scaleLog().clamp(true); //clamps to avoid log(0) = NaN
 		}
 		if(axis_domain == SCALE_EXTENT) {
 			if(axis == 'x') {
-				this.xScale = _scale.domain(d3.extent(this.data, function(d) { return d.x }))
+				this.xScale = _scale.domain(d3.extent(this.data, function(d) { return log ? Math.max(d.x, 0.01) : d.x }))
 			} else if(axis == 'y') {
-				this.yScale = _scale.domain(d3.extent(this.data, function(d) { return d.y }))
+				this.yScale = _scale.domain(d3.extent(this.data, function(d) { return log ? Math.max(d.y, 0.01) : d.y }))
 			} 
 		} else if(axis_domain == SCALE_ZERO_MAX) {
 			if(axis == 'x') {
-				this.xScale = _scale.domain([0, d3.max(this.data, function(d) { return d.x })])
+				this.xScale = _scale.domain([0.01, d3.max(this.data, function(d) { return d.x })])
 			} else if(axis == 'y') {
-				this.yScale = _scale.domain([0, d3.max(this.data, function(d) { return d.y })])
+				this.yScale = _scale.domain([0.01, d3.max(this.data, function(d) { return d.y })])
 			} 
 		}
 		this.xScale.range([0, this.width]);
