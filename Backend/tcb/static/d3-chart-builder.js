@@ -1,3 +1,8 @@
+/**
+ * THIS IS A PROTOTYPE, IT MOSTLY IS UNTESTED / UNIMPLEMENTED
+ * TODO: Everything related to styling
+ */
+
 const LINE_CHART 		= 	0x1;
 const BAR_CHART 		= 	0x2;
 const DOTTED_LINE_CHART = 	0x3;

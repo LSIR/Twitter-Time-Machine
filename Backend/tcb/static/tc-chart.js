@@ -43,7 +43,7 @@ function tcMakeHistoryChart(divID, raw_data, metric, xaxis, yaxis) {
 		.build();
 	
 	let safeDivID = divID.substr(1);
-	$(divID).append('<div class="row" id="'+safeDivID+'_controls"></div>')
+	$(divID+"_row").append('<div class="row col-8 mt-3" id="'+safeDivID+'_controls"></div>')
 	let controlRow = $(divID+'_controls')
 	controlRow.append('<div class="col-3 form-switch">\
 				<label class="form-check-label" for="logscale_'+safeDivID+'">Logarithmic scale</label>\

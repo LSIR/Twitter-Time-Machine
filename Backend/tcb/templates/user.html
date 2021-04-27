@@ -199,7 +199,31 @@
 		</ul>
 		<div class="tab-content" id="myTabContent">
 			<div class="tab-pane fade show active" id="followers" role="tabpanel" aria-labelledby="followers-tab">
-				<div class="col-8" style="height: 500px" id="followers_chart">
+				<div class="row" id="followers_chart_row">
+					<div class="col-8" style="height: 500px" id="followers_chart">
+					</div>
+					<div class="col-4 shadow">
+						<div class="row">
+							<h4>Growth Data</h4>
+						</div>
+						<div class="row">
+							<div class="col-6">
+								<p>Average Growth: {{ avg_growth }} followers/day</p>
+							</div>
+							<div class="col-6">
+								<p>Max Growth: {{max_growth}} followers/day</p>
+							</div>
+						</div>
+
+						<div class="row">
+							<h4>Popularity</h4>
+						</div>
+						<div class="row">
+							<div class="col-6">
+								<p>Followers/Followees ratio: {% widthratio followers_count following_count 1 %}</p>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="tab-pane fade" id="tweets" role="tabpanel" aria-labelledby="tweets-tab">
