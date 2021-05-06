@@ -9,9 +9,11 @@ const DOTTED_LINE_CHART = 	0x3;
 
 const TIME_SCALE 		= 	0x10;
 const LINEAR_SCALE 		= 	0x20;
+const BAND_SCALE		=	0x30;
 
 const SCALE_EXTENT 		= 	0x100;
 const SCALE_ZERO_MAX	= 	0x200;
+const SCALE_MAP			= 	0x300;
 
 const formatTime = d3.timeFormat("%e %B %Y");
 
@@ -27,7 +29,7 @@ function getWidthSafe(elem, parentID) {
 class TCChart {
 
 
-	constructor(parentDiv, width, height ,margin, xScale, yScale, data, content, dotted, hover_evt, out_evt, click_evt, internalBuilder, highlighted_pts) {
+	constructor(parentDiv, width, height ,margin, xScale, yScale, data, generators, dotted, hover_evt, out_evt, click_evt, internalBuilder, highlighted_pts) {
 		this.hover_evt = hover_evt;
 		this.out_evt = out_evt;
 		this.width = width;
@@ -36,7 +38,7 @@ class TCChart {
 		this.xScale = xScale;
 		this.yScale = yScale;
 		this.data = data;
-		this.content = content;
+		this.generators = generators;
 		this.dotted = dotted;
 		this.internalBuilder = internalBuilder;
 		this.highlighted_pts = highlighted_pts;
@@ -80,10 +82,7 @@ class TCChart {
 			.call(d3.axisLeft(yScale).ticks(5)); // Create an axis component with d3.axisLeft
 
 		// 9. Append the path, bind the data, and call the line generator 
-		this.path = this.svg.append("path")
-			.datum(data) // 10. Binds data to the line 
-			.attr("class", "line") // Assign a class for styling 
-			.attr("d", content); // 11. Calls the line generator 
+		this.generators[0](this) //create function
 		
 		if(dotted) {
 			this.svg.selectAll(".dot")
@@ -172,19 +171,7 @@ class TCChart {
 
 		// Update the line
 		//don't have access to "this" inside d3 code...
-		let _xs = this.xScale;
-		let _ys = this.yScale;
-		let _ib = this.internalBuilder;
-		let _h = this.height
-		this.path.datum(data);
-		let _p = this.path
-		this.path
-			.enter()
-			.attr("class","line")
-			.merge(_p)
-			.transition()
-			.duration(transition_time)
-			.attr("d", _ib.build(_xs, _ys, _h))
+		this.generators[1](this, transition_time);
 
 		if(this.dotted) {
 			let _d = this.svg.selectAll(".dot").remove().exit();
@@ -211,7 +198,9 @@ class TCChartBuilder {
 		this.margin = {top: 0, right: 0, bottom: 0, left: 0}
 		if(type == LINE_CHART || type == DOTTED_LINE_CHART) {
 			this.internalBuilder = new TCInternalLineChartBuilder();
-		}
+		} else if(type == BAR_CHART) {
+			this.internalBuilder = new TCInternalBarChartBuilder();
+		}  
 	}
 
 	setHighlightedPoints(pts) {
@@ -293,33 +282,42 @@ class TCChartBuilder {
 			this.xScale = d3.scaleTime()
 		} else if (this.x_scale_type == LINEAR_SCALE) {
 			this.xScale = d3.scaleLinear()
+		} else if (this.x_scale_type == BAND_SCALE) {
+			this.xScale = d3.scaleBand().padding(0.1)
 		}
 
 		if(this.y_scale_type == TIME_SCALE) {
 			this.yScale = d3.scaleTime()
 		} else if (this.y_scale_type == LINEAR_SCALE) {
 			this.yScale = d3.scaleLinear()
+		} else if (this.y_scale_type == BAND_SCALE) {
+			this.yScale = d3.scaleBand().padding(0.1)
 		}
 
 
 		let _extent = function(f,data) { return d3.extent(data, f)}
 		let _zero_max = function(f,data) { return [0, d3.max(data, f)]}
+		let _map = function(f,data) { return data.map(f) }
 		if(this.x_scale_domain == SCALE_EXTENT) {
 			this.xScale.domain(_extent(function(d) { return d.x; }, this.data));
 		} else if(this.x_scale_domain == SCALE_ZERO_MAX) {
 			this.xScale.domain(_zero_max(function(d) { return d.x; }, this.data));
+		} else if(this.x_scale_domain == SCALE_MAP) {
+			this.xScale.domain(_map(function(d) { return d.x; }, this.data))
 		}
 		this.xScale.range([0, this.width])
 		if(this.y_scale_domain == SCALE_EXTENT) {
 			this.yScale.domain(_extent(function(d) { return d.y; }, this.data));
 		} else if(this.y_scale_domain == SCALE_ZERO_MAX) {
 			this.yScale.domain(_zero_max(function(d) { return d.y; }, this.data));
+		} else if(this.y_scale_domain == SCALE_MAP) {
+			this.yScale.domain(_map(function(d) { return d.y; }, this.data))
 		}
 		this.yScale.range([this.height, 0])
 		
-		let content = this.internalBuilder.build(this.xScale, this.yScale, this.height);
+		let generators = this.internalBuilder.build(this.xScale, this.yScale, this.height);
 
-		return new TCChart(this.parentDiv, this.width, this.height, this.margin, this.xScale, this.yScale, this.data, content, (this.type === DOTTED_LINE_CHART), this.hover_evt, this.out_evt, this.click_evt, this.internalBuilder, this.highlighted_pts);
+		return new TCChart(this.parentDiv, this.width, this.height, this.margin, this.xScale, this.yScale, this.data, generators, (this.type === DOTTED_LINE_CHART), this.hover_evt, this.out_evt, this.click_evt, this.internalBuilder, this.highlighted_pts);
 	}
 	
 }
@@ -331,17 +329,73 @@ class TCInternalLineChartBuilder {
 	}
 
 	build(xScale, yScale, height) {
+		let line = undefined;
 		if(this.filled) {
-			return d3.area()
+			line = d3.area()
 				.x(function(d) { return xScale(d.x); })
 				.y1(function(d) { return yScale(d.y); })
 				.y0(height)
 				.curve(d3.curveMonotoneX)
 		} else {
-			return d3.line()
+			line = d3.line()
 				.x(function(d) { return xScale(d.x); })
 				.y(function(d) { return yScale(d.y); })
 				.curve(d3.curveMonotoneX)
 		}
+
+		let create = function(self) {
+			self.path = self.svg.append("path")
+				.datum(self.data) // 10. Binds data to the line 
+				.attr("class", "line") // Assign a class for styling 
+				.attr("d", line); // 11. Calls the line generator 
+		}
+
+		let update = function(self, transition_time) {
+			let _xs = self.xScale;
+			let _ys = self.yScale;
+			let _ib = self.internalBuilder;
+			let _h = self.height
+			self.path.datum(data);
+			let _p = self.path
+			self.path
+				.enter()
+				.attr("class","line")
+				.merge(_p)
+				.transition()
+				.duration(transition_time)
+				.attr("d", _ib.build(_xs, _ys, _h))
+		}
+
+		return [create, update]
+	}
+}
+
+class TCInternalBarChartBuilder {
+
+	constructor(builder) {
+		this.builder = builder;
+	}
+
+	setFilled(filled) {
+		this.filled = filled;
+	}
+
+	build(xScale, yScale, height) {
+		let create = function(self) {
+			console.log(self.data)
+			self.svg.selectAll("bar")
+				.data(self.data)
+				.enter().append("rect")
+				.style("fill", "steelblue")
+				.attr("x", function(d) { return self.xScale(d.x); })
+				.attr("width", self.xScale.bandwidth())
+				.attr("y", function(d) { return self.yScale(d.y); })
+				.attr("height", function(d) { return height - self.yScale(d.y); });
+		}
+
+		let update = function(self, transition_time) {
+
+		}
+		return [create, update];
 	}
 }
