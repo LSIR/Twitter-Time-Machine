@@ -142,9 +142,9 @@ class TCChart {
 		}
 		let _ib = this.internalBuilder;
 		let _h = this.height
-		this.path.transition()
-			.duration(500)
-			.attr("d", _ib.build(_xs, _ys, _h))
+
+		this.generators = this.internalBuilder.build(this.xScale, this.yScale, this.height)
+		this.generators[1](this, 500)
 	}
 
 	updateData(data, x_scale_domain, y_scale_domain, transition_time) {	
@@ -172,6 +172,8 @@ class TCChart {
 		// Update the line
 		//don't have access to "this" inside d3 code...
 		this.generators[1](this, transition_time);
+		let _xs = this.xScale;
+		let _ys = this.yScale;
 
 		if(this.dotted) {
 			let _d = this.svg.selectAll(".dot").remove().exit();
@@ -355,7 +357,7 @@ class TCInternalLineChartBuilder {
 			let _ys = self.yScale;
 			let _ib = self.internalBuilder;
 			let _h = self.height
-			self.path.datum(data);
+			self.path.datum(self.data);
 			let _p = self.path
 			self.path
 				.enter()
@@ -363,7 +365,7 @@ class TCInternalLineChartBuilder {
 				.merge(_p)
 				.transition()
 				.duration(transition_time)
-				.attr("d", _ib.build(_xs, _ys, _h))
+				.attr("d", line)
 		}
 
 		return [create, update]
