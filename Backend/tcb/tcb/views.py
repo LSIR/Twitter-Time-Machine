@@ -36,7 +36,7 @@ def user(request, usr_id):
 		followers_count = details['followers_count']
 		likes_count = details['favourites_count']
 		bio = details['description']
-		pp_url = details['profile_image_url_https'].replace("_normal", "")
+		pp_url = details['img'].replace("_normal", "")
 		url = details['url']
 
 		# Get updated informations from twitter API
@@ -92,11 +92,12 @@ def tweets(request, usr_id):
 	dt = (3*24*60*60)
 	user = database.get_collection("users").find_one({ "_id": usr_id.lower() })
 	if not user is None:
-		uuid = user['details']['id_str']
+		uuid = user['details']['id']
+		print(uuid)
 		tweets = database.get_collection('tweets').find({'user_id': uuid})
 		tweets_no_id = list(map(lambda x: {i:x[i] for i in x if i!='_id'}, tweets))
 		if 'ts' in request.GET:
 			target_ts = int(request.GET['ts'])
-			tweets_no_id = list(filter(lambda x: x['ts'] > target_ts-dt and x['ts'] < target_ts+dt, tweets_no_id))
+			tweets_no_id = list(filter(lambda x: 'ts' in x and x['ts'] > target_ts-dt and x['ts'] < target_ts+dt, tweets_no_id))
 		return JsonResponse(tweets_no_id, safe=False)
 	return HttpResponse("User not found :(")
