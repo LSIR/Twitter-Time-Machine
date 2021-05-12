@@ -17,15 +17,6 @@ const SCALE_MAP			= 	0x300;
 
 const formatTime = d3.timeFormat("%e %B %Y");
 
-function getWidthSafe(elem, parentID) {
-	let element = $(elem).clone();
-	element.css({ visibility: 'hidden' });
-	$(parentID).append(element);
-	let width = element.outerWidth();
-	element.remove();
-	return width;
-}
-
 class TCChart {
 
 
@@ -45,6 +36,7 @@ class TCChart {
 		this.svg = d3.select('#'+parentDiv.attr('id'))
 			.append("div")
 			.classed("svg-container", true)
+			.style("padding-bottom", ((height+margin.bottom+margin.top)/(width+margin.left+margin.right)*100)+"%")
 			.append("svg")
 			.attr("preserveAspectRatio", "xMinYMin meet")
 			.attr("viewBox", "0 0 "+(width+margin.left)+" "+(height+2*margin.top))
@@ -276,9 +268,9 @@ class TCChartBuilder {
 		return this;
 	}
 
-	build() {
-		this.width = getWidthSafe(this.parentDiv, "#myTabContent") - this.margin.left - this.margin.right;
-		this.height = this.parentDiv.height() - this.margin.top - this.margin.bottom;
+	build(width, height) {
+		this.width = width - this.margin.left - this.margin.right;
+		this.height = height - this.margin.top - this.margin.bottom;
 
 		if(this.x_scale_type == TIME_SCALE) {
 			this.xScale = d3.scaleTime()

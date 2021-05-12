@@ -2,6 +2,20 @@ let charts = {}
 
 const MAX_DATAPOINTS = 800
 
+function getWidthSafe(elem, parentID) {
+	let element = $(elem).clone();
+	element.css({ visibility: 'hidden' });
+	$(parentID).append(element);
+	let width = element.outerWidth();
+	element.remove();
+	return width;
+}
+
+function mod(n, m) {
+	return ((n % m) + m) % m;
+}  
+
+
 function tcMakeHistoryChart(divID, raw_data, metric, highlighted_points, click_function) {
 
 	let history = raw_data.map((x) => {
@@ -18,7 +32,7 @@ function tcMakeHistoryChart(divID, raw_data, metric, highlighted_points, click_f
 		.setParentDiv($(divID))
 		.setData(optimizePoints(history, MAX_DATAPOINTS, []))
 		.setFilled(true)
-		.setMargin(50,50,50,50)
+		.setMargin(50,50,50,0)
 		.setXAxisScale(TIME_SCALE)
 		.setXAxisScaleDomain(SCALE_EXTENT)
 		.setYAxisScale(LINEAR_SCALE)
@@ -42,7 +56,7 @@ function tcMakeHistoryChart(divID, raw_data, metric, highlighted_points, click_f
 		)
 		.setClickEvent(click_function)
 		.setHighlightedPoints(highlighted_points)
-		.build();
+		.build(getWidthSafe($(divID), "#myTabContent"), $(divID).height());
 	
 	let safeDivID = divID.substr(1);
 	$(divID+"_row").append('<div class="row col-8 mt-3" id="'+safeDivID+'_controls"></div>')
@@ -105,23 +119,24 @@ function tcMakeHistoryChart(divID, raw_data, metric, highlighted_points, click_f
 }
 
 function tcMakeDailyBarchart(divID, raw_data) {
-	let data = [{x: "Sunday", y: 0}, {x: "Monday", y: 0}, {x: "Tuesday", y: 0},{x: "Wednesday", y: 0},{x: "Thursday", y: 0},{x: "Friday", y: 0},{x: "Saturday", y: 0}]
+	let data = [{x: "Monday", y: 0}, {x: "Tuesday", y: 0},{x: "Wednesday", y: 0},{x: "Thursday", y: 0},{x: "Friday", y: 0},{x: "Saturday", y: 0}, {x: "Sunday", y: 0}]
 	raw_data.forEach(function(e) {
 		let date = new Date();
 		date.setTime(e.ts*1000);
-		data[date.getDay()].y += 1;
+		let day = mod((date.getDay() - 1), 7);
+		data[day].y += 1;
 	});
 	let builder = new TCChartBuilder(BAR_CHART);
 	let chart = builder
 		.setParentDiv($(divID))
 		.setData(data)
 		.setFilled(true)
-		.setMargin(20,0,10,0)
+		.setMargin(20,50,20,20)
 		.setXAxisScale(BAND_SCALE)
 		.setXAxisScaleDomain(SCALE_MAP)
 		.setYAxisScale(LINEAR_SCALE)
 		.setYAxisScaleDomain(SCALE_ZERO_MAX)
-		.build();
+		.build(530, 300);
 }
 
 	
