@@ -65,7 +65,6 @@ def user(request, usr_id):
 		user['history'] = sorted(user['history'], key=lambda x: x['ts'])
 		print("Done")
 		(peaks, max_slope, avg_slope) = analysis.find_peaks(user['history'], 'followers_count')
-		#tweets = list(database.get_collection("tweets").find({"user_id": user['details']['id_str']}))
 		context = {
 			'name': name,
 			'username': screen_name,
@@ -83,7 +82,10 @@ def user(request, usr_id):
 			'protected': '<i rel="tooltip" title="Protected account" class="bi bi-lock-fill"></i>' if details['protected'] else '<i rel="tooltip" title="Unprotected account" class="bi bi-unlock-fill"></i>',
 			'peaks': peaks,
 			'avg_growth': (int)(avg_slope * (24*60*60)),
-			'max_growth': (int)(max_slope * (24*60*60))
+			'max_growth': (int)(max_slope * (24*60*60)),
+			'screen_names': json.dumps(user['screen_names']),
+			'names': json.dumps(user['names']),
+			'descriptions': json.dumps(user['descriptions'])
 		}
 		return render(request, 'user.html', context=context)
 	return HttpResponse("User not found :(")

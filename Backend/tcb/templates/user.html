@@ -246,7 +246,28 @@
 					</div>
 				</div>
 			</div>
-			<div class="tab-pane fade" id="attributes" role="tabpanel" aria-labelledby="attributes-tab">...</div>
+			<div class="tab-pane fade" id="attributes" role="tabpanel" aria-labelledby="attributes-tab">
+				<div class="row">
+					<div class="col-4">
+						<h4>Changes in the account name</h4>
+						<p id="acc_name_changes"></p>
+						
+					</div>
+					<div class="col-4">
+						<h4>Changes in the name</h4>
+						<p id="name_changes"></p>
+					</div>
+					<div class="col-4">
+						<h4>Changes in the description</h4>
+						<p id="description_changes"></p>
+					</div>
+				</div>
+				<div class="row">
+					<div id="levenshtein_chart" class="col-12" style="height: 500px">
+
+					</div>
+				</div>
+			</div>
 			<div class="tab-pane fade" id="deletions" role="tabpanel" aria-labelledby="deletions-tab">...</div>
 		</div>
 	</div>
@@ -260,7 +281,7 @@
 <script src="{% static 'd3-chart-builder.js' %}"></script> 
 <script src="{% static 'tc-chart.js' %}"></script> 
 <script>
-	let history_raw = JSON.parse("{{ history }}".replaceAll('&quot;', '\"'))
+	let history_raw = JSON.parse("{{ history |escapejs}}")
 	tcMakeHistoryChart('#followers_chart', history_raw, 'followers_count', {{peaks}}, function(d) {
 				$.ajax("/tweets/{{ username }}?ts="+(d.x / 1000)).done(function(res) {
 					let tweetModal = new bootstrap.Modal(document.getElementById('tweetModal'))
@@ -283,6 +304,63 @@
 	tcMakeHistoryChart('#statuses_chart', history_raw, 'statuses_count', [], function(d) {})
 	tcMakeHistoryChart('#favorites_chart', history_raw, 'favourites_count', [], function(d) {})
 	tcMakeDailyBarchart('#daily_chart', history_raw)
+
+	let screen_name_history = JSON.parse("{{screen_names|escapejs}}")
+	let name_history = JSON.parse("{{names|escapejs}}")
+	let description_history = JSON.parse("{{descriptions|escapejs}}")
+
+	function writeAttributeHistory(history, attr_name, divID, attr_json_name) {
+		let size = history.length;
+		let message = ""
+		if(size == 1) {
+			message = "There have been no changes in "+attr_name;
+		} else {
+			message = "There have been "+(size-1)+" changes in "+attr_name;
+			let dist = 0;
+			for(let i = 1; i < size; i++) {
+				dist += levenshteinDistance(history[i][attr_json_name], history[i-1][attr_json_name])
+			}
+			message += "<br/>The Levenshtein distance of consecutive pairs of "+attr_name+" is "+dist;
+		}
+		$("#"+divID).html(message)
+	}
+
+	writeAttributeHistory(screen_name_history, "user name", "acc_name_changes", "screen_name");
+	writeAttributeHistory(name_history, "name", "name_changes", "name");
+	writeAttributeHistory(description_history, "description", "description_changes","description");
+
+	function levenshteinAt(ts) {
+		let s = 0
+
+		screen_name_history.forEach(function(e,idx) {
+			if(e.ts == ts && idx > 0) {
+				s += levenshteinDistance(screen_name_history[idx-1].screen_name, screen_name_history[idx].screen_name)
+			}
+		});
+		name_history.forEach(function(e,idx) {
+			if(e.ts == ts && idx > 0) {
+				s += levenshteinDistance(name_history[idx-1].name, name_history[idx].name)
+			}
+		});
+		description_history.forEach(function(e,idx) {
+			if(e.ts == ts && idx > 0) {
+				s += levenshteinDistance(description_history[idx-1].description, description_history[idx].description)
+			}
+		});
+		return s;
+	}
+
+	let levenshtein_data = history_raw.map(function(elem, idx) {
+		if(idx == 0) {
+			return {x: elem['ts'], y: 0}
+		} else {
+			let a = levenshteinAt(elem['ts']);
+			return {x: elem['ts'], y: a}
+		}
+		
+	})
+
+	tcMakeLevenshteinChart("#levenshtein_chart", levenshtein_data)
 </script>
 
 

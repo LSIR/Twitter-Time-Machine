@@ -139,4 +139,16 @@ function tcMakeDailyBarchart(divID, raw_data) {
 		.build(530, 300);
 }
 
-	
+function tcMakeLevenshteinChart(divID, data) {
+	let builder = new TCChartBuilder(BAR_CHART);
+	let chart = builder
+		.setParentDiv($(divID))
+		.setData(data)
+		.setFilled(true)
+		.setMargin(20,50,20,20)
+		.setXAxisScale(BAND_SCALE)
+		.setXAxisScaleDomain(SCALE_MAP)
+		.setYAxisScale(LINEAR_SCALE)
+		.setYAxisScaleDomain(SCALE_ZERO_MAX)
+		.build(getWidthSafe($(divID), "#myTabContent"), $(divID).height());
+}
