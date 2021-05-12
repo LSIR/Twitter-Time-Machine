@@ -139,7 +139,10 @@ function tcMakeDailyBarchart(divID, raw_data) {
 		.build(530, 300);
 }
 
-function tcMakeLevenshteinChart(divID, data) {
+function tcMakeLevenshteinChart(divID, data, names, screen_names, descriptions) {
+	let div = d3.select("body").append("div")	
+    	.attr("class", "tooltip")				
+    	.style("opacity", 0);
 	let builder = new TCChartBuilder(BAR_CHART);
 	let chart = builder
 		.setParentDiv($(divID))
@@ -151,4 +154,89 @@ function tcMakeLevenshteinChart(divID, data) {
 		.setYAxisScale(LINEAR_SCALE)
 		.setYAxisScaleDomain(SCALE_ZERO_MAX)
 		.build(getWidthSafe($(divID), "#myTabContent"), $(divID).height());
+
+	chart.svg.selectAll("rect")
+		.on("mouseover", function(d) {
+			div.transition()		
+				.duration(200)		
+				.style("opacity", .9);
+			
+			let ts = Date.parse(d.x)/1000;
+			let oldName = "";
+			let newName = "";
+			names.forEach(function(e, idx) {
+				if(idx != 0) {
+					if(e.ts == ts) {
+						oldName = names[idx-1].name+ '<br/>';
+						newName = names[idx].name + '<br/>'
+						return;
+					}
+				}
+			});
+
+			let oldSName = "";
+			let newSName = "";
+			screen_names.forEach(function(e, idx) {
+				if(idx != 0) {
+					if(e.ts == ts) {
+						oldSName = screen_names[idx-1].screen_name+ '<br/>';
+						newSName = screen_names[idx].screen_name + '<br/>'
+						return;
+					}
+				}
+			});
+
+
+			let oldDesc = "";
+			let newDesc = "";
+			descriptions.forEach(function(e, idx) {
+				if(idx != 0) {
+					if(e.ts == ts) {
+						oldDesc = descriptions[idx-1].description + '<br/>';
+						newDesc = descriptions[idx].description + '<br/>'
+						return;
+					}
+				}
+			});
+
+
+			let html = ''
+			
+			if(oldName != "") {
+				html += 'Change of name:<br/>'
+				html += '<span style="color: red">-';
+				html += oldName;
+				html += '</span><span style="color: green">+'
+				html += newName;
+				html += '</span>'
+			}
+
+			if(oldSName != "") {
+				html += 'Change of user name:<br/>'
+				html += '<span style="color: red">-';
+				html += oldSName;
+				html += '</span><span style="color: green">+'
+				html += newSName;
+				html += '</span>'
+			}
+
+			if(oldDesc != "") {
+				html += 'Change of description:<br/>'
+				html += '<span style="color: red">-';
+				html += oldDesc;
+				html += '</span><span style="color: green">+'
+				html += newDesc;
+				html += '</span>'
+			}
+		
+				
+			div.html(html)	
+				.style("left", (d3.event.pageX) + "px")		
+				.style("top", (d3.event.pageY - 28) + "px");
+		})
+		.on("mouseout", function() {
+			div.transition()		
+				.duration(200)		
+				.style("opacity", 0);	
+		})
 }

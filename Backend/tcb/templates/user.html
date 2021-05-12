@@ -48,12 +48,13 @@
 		position: absolute;			
 		text-align: center;							
 		padding: 2px;				
-		font: 12px sans-serif;		
+		font: 14px sans-serif;		
 		background: rgb(32, 32, 32);	
 		color: white;
 		border: 0px;		
 		border-radius: 8px;			
-		pointer-events: none;			
+		pointer-events: none;	
+		max-width: 200px;		
 	}
 	
 </style>
@@ -350,17 +351,17 @@
 		return s;
 	}
 
-	let levenshtein_data = history_raw.map(function(elem, idx) {
-		if(idx == 0) {
-			return {x: elem['ts'], y: 0}
-		} else {
+	let levenshtein_data = []
+	history_raw.forEach(function(elem, idx) {
+		if(idx != 0) {
 			let a = levenshteinAt(elem['ts']);
-			return {x: elem['ts'], y: a}
+			if(a != 0) {
+				levenshtein_data.push({x: (new Date(elem['ts']*1000)).toUTCString(), y: a})
+			}
 		}
-		
 	})
 
-	tcMakeLevenshteinChart("#levenshtein_chart", levenshtein_data)
+	tcMakeLevenshteinChart("#levenshtein_chart", levenshtein_data, name_history, screen_name_history, description_history)
 </script>
 
 
