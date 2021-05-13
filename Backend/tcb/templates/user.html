@@ -51,7 +51,7 @@
 		font: 14px sans-serif;		
 		background: rgb(32, 32, 32);	
 		color: white;
-		border: 0px;		
+		border: 0px;
 		border-radius: 8px;			
 		pointer-events: none;	
 		max-width: 200px;		
@@ -185,7 +185,10 @@
 	<div class="col-lg-12 col-sm-12" id="profile-secondary">
 		<ul class="nav nav-tabs" id="myTab" role="tablist">
 			<li class="nav-item" role="presentation">
-				<button class="nav-link active" id="followers-tab" data-bs-toggle="tab" data-bs-target="#followers" type="button" role="tab" aria-controls="followers" aria-selected="true">Followers</button>
+				<button class="nav-link active" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary" type="button" role="tab" aria-controls="summary" aria-selected="true">Summary</button>
+			</li>
+			<li class="nav-item" role="presentation">
+				<button class="nav-link" id="followers-tab" data-bs-toggle="tab" data-bs-target="#followers" type="button" role="tab" aria-controls="followers" aria-selected="false">Followers</button>
 			</li>
 			<li class="nav-item" role="presentation">
 				<button class="nav-link" id="tweets-tab" data-bs-toggle="tab" data-bs-target="#tweets" type="button" role="tab" aria-controls="tweets" aria-selected="false">Tweets</button>
@@ -198,7 +201,16 @@
 			</li>
 		</ul>
 		<div class="tab-content" id="myTabContent">
-			<div class="tab-pane fade show active" id="followers" role="tabpanel" aria-labelledby="followers-tab">
+			<div class="tab-pane fade show active" id="summary" role="tabpanel" aria-labelledby="summary-tab">
+				<div class="row mt-3">
+					<div class="col-4 shadow">
+						<div class="col-12" id="daily_chart" style="height: 300px">
+
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="tab-pane fade" id="followers" role="tabpanel" aria-labelledby="followers-tab">
 				<div class="row" id="followers_chart_row">
 					<h3>Follower Count over Time</h3>
 					<div class="col-8" style="height: 500px" id="followers_chart">
@@ -223,14 +235,6 @@
 							<div class="col-6">
 								<p>Followers/Followees ratio: {% widthratio followers_count following_count 1 %}</p>
 							</div>
-						</div>
-					</div>
-				</div>
-				<div class="row mt-3">
-					<div class="col-4 shadow">
-						<h3>Day of the Week</h3>
-						<div class="col-12" id="daily_chart" style="height: 300px">
-
 						</div>
 					</div>
 				</div>
@@ -301,9 +305,10 @@
 					sort_tweets(false);
 					tweetModal.show()
 				})
-			})
-	tcMakeHistoryChart('#statuses_chart', history_raw, 'statuses_count', [], function(d) {})
-	tcMakeHistoryChart('#favorites_chart', history_raw, 'favourites_count', [], function(d) {})
+			},
+			"Followers")
+	tcMakeHistoryChart('#statuses_chart', history_raw, 'statuses_count', [], function(d) {}, "Tweets")
+	tcMakeHistoryChart('#favorites_chart', history_raw, 'favourites_count', [], function(d) {}, "Favorites")
 	tcMakeDailyBarchart('#daily_chart', history_raw)
 
 	let screen_name_history = JSON.parse("{{screen_names|escapejs}}")

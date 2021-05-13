@@ -20,7 +20,7 @@ const formatTime = d3.timeFormat("%e %B %Y");
 class TCChart {
 
 
-	constructor(parentDiv, width, height ,margin, xScale, yScale, data, generators, dotted, hover_evt, out_evt, click_evt, internalBuilder, highlighted_pts) {
+	constructor(parentDiv, width, height ,margin, xScale, yScale, data, generators, dotted, hover_evt, out_evt, click_evt, internalBuilder, highlighted_pts, xlabel, ylabel) {
 		this.hover_evt = hover_evt;
 		this.out_evt = out_evt;
 		this.width = width;
@@ -73,6 +73,21 @@ class TCChart {
 			.attr("class", "y axis")
 			.call(d3.axisLeft(yScale).ticks(5)); // Create an axis component with d3.axisLeft
 
+		// text label for the x axis
+		this.svg.append("text")             
+			.attr("transform",
+				"translate(" + (width/2) + " ," +  (height + 30) + ")")
+			.style("text-anchor", "middle")
+			.text(xlabel);
+
+		//text label for the y axis
+		this.svg.append("text")
+			.attr("transform", "rotate(-90)")
+			.attr("y", 0 - margin.left)
+			.attr("x",0 - (height / 2))
+			.attr("dy", "1em")
+			.style("text-anchor", "middle")
+			.text(ylabel);   
 		// 9. Append the path, bind the data, and call the line generator 
 		this.generators[0](this) //create function
 		
@@ -194,7 +209,9 @@ class TCChartBuilder {
 			this.internalBuilder = new TCInternalLineChartBuilder();
 		} else if(type == BAR_CHART) {
 			this.internalBuilder = new TCInternalBarChartBuilder();
-		}  
+		} 
+		this.xlabel = ""
+		this.ylabel = ""
 	}
 
 	setHighlightedPoints(pts) {
@@ -268,6 +285,16 @@ class TCChartBuilder {
 		return this;
 	}
 
+	setXLabel(label) {
+		this.xlabel = label;
+		return this;
+	}
+
+	setYLabel(label) {
+		this.ylabel = label;
+		return this;
+	}
+
 	build(width, height) {
 		this.width = width - this.margin.left - this.margin.right;
 		this.height = height - this.margin.top - this.margin.bottom;
@@ -311,7 +338,9 @@ class TCChartBuilder {
 		
 		let generators = this.internalBuilder.build(this.xScale, this.yScale, this.height);
 
-		return new TCChart(this.parentDiv, this.width, this.height, this.margin, this.xScale, this.yScale, this.data, generators, (this.type === DOTTED_LINE_CHART), this.hover_evt, this.out_evt, this.click_evt, this.internalBuilder, this.highlighted_pts);
+		return new TCChart(this.parentDiv, this.width, this.height, this.margin, this.xScale, this.yScale, 
+							this.data, generators, (this.type === DOTTED_LINE_CHART), this.hover_evt, this.out_evt, this.click_evt,
+							 this.internalBuilder, this.highlighted_pts, this.xlabel, this.ylabel);
 	}
 	
 }

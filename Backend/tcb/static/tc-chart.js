@@ -16,7 +16,7 @@ function mod(n, m) {
 }  
 
 
-function tcMakeHistoryChart(divID, raw_data, metric, highlighted_points, click_function) {
+function tcMakeHistoryChart(divID, raw_data, metric, highlighted_points, click_function, ylabel) {
 
 	let history = raw_data.map((x) => {
 		let metrics = x["details"][metric]
@@ -32,7 +32,7 @@ function tcMakeHistoryChart(divID, raw_data, metric, highlighted_points, click_f
 		.setParentDiv($(divID))
 		.setData(optimizePoints(history, MAX_DATAPOINTS, []))
 		.setFilled(true)
-		.setMargin(50,50,50,0)
+		.setMargin(40,40,60,0)
 		.setXAxisScale(TIME_SCALE)
 		.setXAxisScaleDomain(SCALE_EXTENT)
 		.setYAxisScale(LINEAR_SCALE)
@@ -56,6 +56,8 @@ function tcMakeHistoryChart(divID, raw_data, metric, highlighted_points, click_f
 		)
 		.setClickEvent(click_function)
 		.setHighlightedPoints(highlighted_points)
+		.setXLabel("Time")
+		.setYLabel(ylabel)
 		.build(getWidthSafe($(divID), "#myTabContent"), $(divID).height());
 	
 	let safeDivID = divID.substr(1);
@@ -131,11 +133,13 @@ function tcMakeDailyBarchart(divID, raw_data) {
 		.setParentDiv($(divID))
 		.setData(data)
 		.setFilled(true)
-		.setMargin(20,50,20,20)
+		.setMargin(40,80,50,0)
 		.setXAxisScale(BAND_SCALE)
 		.setXAxisScaleDomain(SCALE_MAP)
 		.setYAxisScale(LINEAR_SCALE)
 		.setYAxisScaleDomain(SCALE_ZERO_MAX)
+		.setXLabel("")
+		.setYLabel("Number of tweets")
 		.build(530, 300);
 }
 
@@ -148,11 +152,13 @@ function tcMakeLevenshteinChart(divID, data, names, screen_names, descriptions) 
 		.setParentDiv($(divID))
 		.setData(data)
 		.setFilled(true)
-		.setMargin(20,50,20,20)
+		.setMargin(50,50,50,20)
 		.setXAxisScale(BAND_SCALE)
 		.setXAxisScaleDomain(SCALE_MAP)
 		.setYAxisScale(LINEAR_SCALE)
 		.setYAxisScaleDomain(SCALE_ZERO_MAX)
+		.setXLabel("Date")
+		.setYLabel("Levenshtein Distance")
 		.build(getWidthSafe($(divID), "#myTabContent"), $(divID).height());
 
 	chart.svg.selectAll("rect")
