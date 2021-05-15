@@ -64,6 +64,7 @@ def user(request, usr_id):
 		print("Sorting History...")
 		user['history'] = sorted(user['history'], key=lambda x: x['ts'])
 		print("Done")
+		tweets_metadata = list(database.get_collection("tweets").find({"user_id": details['id']}, {'_id': False, 'text': False, 'user_id': False}))
 		(peaks, max_slope, avg_slope) = analysis.find_peaks(user['history'], 'followers_count')
 		context = {
 			'name': name,
@@ -85,7 +86,8 @@ def user(request, usr_id):
 			'max_growth': (int)(max_slope * (24*60*60)),
 			'screen_names': json.dumps(user['screen_names']),
 			'names': json.dumps(user['names']),
-			'descriptions': json.dumps(user['descriptions'])
+			'descriptions': json.dumps(user['descriptions']),
+			'tweets_metadata': json.dumps(tweets_metadata)
 		}
 		return render(request, 'user.html', context=context)
 	return HttpResponse("User not found :(")

@@ -287,6 +287,7 @@
 <script src="{% static 'tc-chart.js' %}"></script> 
 <script>
 	let history_raw = JSON.parse("{{ history |escapejs}}")
+	let tweets_metadata = JSON.parse("{{tweets_metadata|escapejs}}")
 	tcMakeHistoryChart('#followers_chart', history_raw, 'followers_count', {{peaks}}, function(d) {
 				$.ajax("/tweets/{{ username }}?ts="+(d.x / 1000)).done(function(res) {
 					let tweetModal = new bootstrap.Modal(document.getElementById('tweetModal'))
@@ -309,7 +310,7 @@
 			"Followers")
 	tcMakeHistoryChart('#statuses_chart', history_raw, 'statuses_count', [], function(d) {}, "Tweets")
 	tcMakeHistoryChart('#favorites_chart', history_raw, 'favourites_count', [], function(d) {}, "Favorites")
-	tcMakeDailyBarchart('#daily_chart', history_raw)
+	tcMakeDailyBarchart('#daily_chart', tweets_metadata)
 
 	let screen_name_history = JSON.parse("{{screen_names|escapejs}}")
 	let name_history = JSON.parse("{{names|escapejs}}")
