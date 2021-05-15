@@ -295,7 +295,7 @@
 <script src="{% static 'tc-chart.js' %}"></script> 
 <script>
 	let history_raw = JSON.parse("{{ history |escapejs}}")
-	let tweets_metadata = JSON.parse("{{tweets_metadata|escapejs}}").filter(e => e.ts !== undefined)
+	let tweets_metadata = JSON.parse("{{tweets_metadata|escapejs}}")
 	tcMakeHistoryChart('#followers_chart', history_raw, 'followers_count', {{peaks}}, function(d) {
 				$.ajax("/tweets/{{ username }}?ts="+(d.x / 1000)).done(function(res) {
 					let tweetModal = new bootstrap.Modal(document.getElementById('tweetModal'))
@@ -318,7 +318,7 @@
 			"Followers", e => "")
 	tcMakeHistoryChart('#statuses_chart', history_raw, 'statuses_count', [], function(d) {}, "Tweets",e => "")
 	tcMakeHistoryChart('#favorites_chart', history_raw, 'favourites_count', [], function(d) {}, "Favorites", e => "")
-	tcMakeDailyBarchart('#daily_chart', tweets_metadata)
+	tcMakeDailyBarchart('#daily_chart', tweets_metadata.filter(e => e.ts !== undefined))
 
 	let screen_name_history = JSON.parse("{{screen_names|escapejs}}")
 	let name_history = JSON.parse("{{names|escapejs}}")
@@ -378,18 +378,21 @@
 	tcMakeLevenshteinChart("#levenshtein_chart", levenshtein_data, name_history, screen_name_history, description_history)
 	tweets_metadata.sort((b,a) => b.ts-a.ts)
 
-	let deletion_count = 0;
-	let deletion_history = tweets_metadata.map(function(e) {
-		deletion_count += (e.deleted ? 1 : 0);
-		return {details: {deletions: deletion_count}, ts: e.ts}
+	//let deletion_history = []
+	let deletion_count = 0
+	tweets_metadata.forEach(function(e) {
+		if(e.deleted) {
+			//deletion_history.push({details: {deletions: deletion_count}, ts: e.ts})
+			deletion_count += 1;
+		}
 	})
-
-	if(deletion_count > 0) {
+	/*
+	if(deletion_history.length > 0) {
 		tcMakeHistoryChart('#deletion_chart', deletion_history, 'deletions', [], function(d) {}, "Number of deleted tweets", function(d) {
 	
 		})
 	}
-
+	*/
 	$("#deleted_title").html("This user has deleted "+deletion_count+" tweets");
 </script>
 
