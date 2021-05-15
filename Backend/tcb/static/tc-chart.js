@@ -16,7 +16,7 @@ function mod(n, m) {
 }  
 
 
-function tcMakeHistoryChart(divID, raw_data, metric, highlighted_points, click_function, ylabel) {
+function tcMakeHistoryChart(divID, raw_data, metric, highlighted_points, click_function, ylabel, hover_html) {
 
 	let history = raw_data.map((x) => {
 		let metrics = x["details"][metric]
@@ -42,7 +42,7 @@ function tcMakeHistoryChart(divID, raw_data, metric, highlighted_points, click_f
 				div.transition()		
 					.duration(200)		
 					.style("opacity", .9);		
-				div.html(d.y +'<br/>'+formatTime(d.x))	
+				div.html(d.y +'<br/>'+formatTime(d.x)+'<br/>'+hover_html(d))	
 					.style("left", (d3.event.pageX) + "px")		
 					.style("top", (d3.event.pageY - 28) + "px");	
 			}
@@ -69,7 +69,7 @@ function tcMakeHistoryChart(divID, raw_data, metric, highlighted_points, click_f
 				</div>')
 	controlRow.append('<div class="col-3 form-switch">\
 				<label class="form-check-label" for="optimize_'+safeDivID+'">Optimize Points</label>\
-				<input checked class="form-check-input" type="checkbox" id="optimize_'+safeDivID+'" style="margin-left: 0">\
+				<input class="form-check-input" type="checkbox" id="optimize_'+safeDivID+'" style="margin-left: 0" '+(history.length <= MAX_DATAPOINTS ? "disabled" : "checked")+'>\
 				</div>')
 	let minDate = new Date(history[0].x).yyyymmdd()
 	let maxDate = new Date(history[history.length-1].x).yyyymmdd();

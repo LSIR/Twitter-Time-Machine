@@ -269,13 +269,17 @@
 				</div>
 				<div class="row">
 					<div id="levenshtein_chart" class="col-12" style="height: 500px">
-
 					</div>
 				</div>
 			</div>
 			<div class="tab-pane fade" id="deletions" role="tabpanel" aria-labelledby="deletions-tab">
-				<div id="deletion_chart" class="col-12" style="height: 500px">
+				<h3 id="deleted_title"></h3>
+				<div class="row" id="deletion_chart_row">
+					<div id="deletion_chart" class="col-8" style="height: 500px">
+					</div>
+					<div class="col-4">
 
+					</div>
 				</div>
 			</div>
 		</div>
@@ -311,9 +315,9 @@
 					tweetModal.show()
 				})
 			},
-			"Followers")
-	tcMakeHistoryChart('#statuses_chart', history_raw, 'statuses_count', [], function(d) {}, "Tweets")
-	tcMakeHistoryChart('#favorites_chart', history_raw, 'favourites_count', [], function(d) {}, "Favorites")
+			"Followers", e => "")
+	tcMakeHistoryChart('#statuses_chart', history_raw, 'statuses_count', [], function(d) {}, "Tweets",e => "")
+	tcMakeHistoryChart('#favorites_chart', history_raw, 'favourites_count', [], function(d) {}, "Favorites", e => "")
 	tcMakeDailyBarchart('#daily_chart', tweets_metadata)
 
 	let screen_name_history = JSON.parse("{{screen_names|escapejs}}")
@@ -376,12 +380,17 @@
 
 	let deletion_count = 0;
 	let deletion_history = tweets_metadata.map(function(e) {
-		deletion_count += 1;
+		deletion_count += (e.deleted ? 1 : 0);
 		return {details: {deletions: deletion_count}, ts: e.ts}
 	})
 
+	if(deletion_count > 0) {
+		tcMakeHistoryChart('#deletion_chart', deletion_history, 'deletions', [], function(d) {}, "Number of deleted tweets", function(d) {
+	
+		})
+	}
 
-	tcMakeHistoryChart('#deletion_chart', deletion_history, 'deletions', [], function(d) {}, "Number of deleted tweets")
+	$("#deleted_title").html("This user has deleted "+deletion_count+" tweets");
 </script>
 
 
