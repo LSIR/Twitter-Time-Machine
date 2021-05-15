@@ -123,12 +123,10 @@ function tcMakeHistoryChart(divID, raw_data, metric, highlighted_points, click_f
 function tcMakeDailyBarchart(divID, raw_data) {
 	let data = [{x: "Monday", y: 0}, {x: "Tuesday", y: 0},{x: "Wednesday", y: 0},{x: "Thursday", y: 0},{x: "Friday", y: 0},{x: "Saturday", y: 0}, {x: "Sunday", y: 0}]
 	raw_data.forEach(function(e) {
-		if(e.ts !== undefined) {
-			let date = new Date();
-			date.setTime(e.ts*1000);
-			let day = mod((date.getDay() - 1), 7);
-			data[day].y += 1;
-		}
+		let date = new Date();
+		date.setTime(e.ts*1000);
+		let day = mod((date.getDay() - 1), 7);
+		data[day].y += 1;
 	});
 	let builder = new TCChartBuilder(BAR_CHART);
 	let chart = builder

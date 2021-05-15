@@ -273,7 +273,11 @@
 					</div>
 				</div>
 			</div>
-			<div class="tab-pane fade" id="deletions" role="tabpanel" aria-labelledby="deletions-tab">...</div>
+			<div class="tab-pane fade" id="deletions" role="tabpanel" aria-labelledby="deletions-tab">
+				<div id="deletion_chart" class="col-12" style="height: 500px">
+
+				</div>
+			</div>
 		</div>
 	</div>
 	<div class="offset-lg-1 col-lg-11 col-sm-12">
@@ -287,7 +291,7 @@
 <script src="{% static 'tc-chart.js' %}"></script> 
 <script>
 	let history_raw = JSON.parse("{{ history |escapejs}}")
-	let tweets_metadata = JSON.parse("{{tweets_metadata|escapejs}}")
+	let tweets_metadata = JSON.parse("{{tweets_metadata|escapejs}}").filter(e => e.ts !== undefined)
 	tcMakeHistoryChart('#followers_chart', history_raw, 'followers_count', {{peaks}}, function(d) {
 				$.ajax("/tweets/{{ username }}?ts="+(d.x / 1000)).done(function(res) {
 					let tweetModal = new bootstrap.Modal(document.getElementById('tweetModal'))
@@ -368,6 +372,16 @@
 	})
 
 	tcMakeLevenshteinChart("#levenshtein_chart", levenshtein_data, name_history, screen_name_history, description_history)
+	tweets_metadata.sort((b,a) => b.ts-a.ts)
+
+	let deletion_count = 0;
+	let deletion_history = tweets_metadata.map(function(e) {
+		deletion_count += 1;
+		return {details: {deletions: deletion_count}, ts: e.ts}
+	})
+
+
+	tcMakeHistoryChart('#deletion_chart', deletion_history, 'deletions', [], function(d) {}, "Number of deleted tweets")
 </script>
 
 
