@@ -1,0 +1,29 @@
+.twitter_style {
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+#twitter_title {
+    text-align: center;
+    color:#1DA1F2;
+    font-size: 70pt;
+    margin-bottom: 10%;
+}
+
+body {
+    background-color:#14171A;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    color:#22282e;
+}
+
+.box_color {
+    background-color:#657786;
+}
+
+.twitter_button {
+    background-color: #AAB8C2;
+    color: #22282e;
+}
+
+.twitter_color {
+    color:#1DA1F2;
+}

@@ -16,34 +16,25 @@
 }
 </script>
 
-<div class="row" style="margin-top: 15%;">
+<div class="row" style="margin-top: 10%;">
+
   <div class="col-8 offset-2">
-    <div class="card shadow-lg p-3 mb-5 bg-white rounded">
+
+    <p class="h1" id="twitter_title">Twitter Time Machine</p>
+
+    <div class="card shadow-lg p-3 mb-5 rounded box_color">
       <!--<img src="..." class="card-img-top" alt="..."> if we have a logo we can put it there :) -->
       <div class="card-body">
         <form>
-          <label for="twusr">Twitter user</label>
+          <label for="twusr" style="margin-bottom: 1.5%; font-size: 16pt;">Please enter the name of a popular twitter user</label>
           <div class="input-group mb-3">
-            <span class="input-group-text" id="at-addon" style="background-color: transparent;">@</span>
+            <span class="input-group-text twitter_color" id="at-addon" style="background-color: transparent;">@</span>
             <input type="text" class="form-control" id="twusr" placeholder="JoeBiden" aria-describedby="at-addon" onkeypress="kp(event)">
           </div>
           <div class="input-group justify-content-center">
-            <button type="button" class="btn btn-outline-secondary" onclick="user_search()">Search !</button>
+            <button type="button" class="btn btn-outline-secondary twitter_button" onclick="user_search()">Search !</button>
           </div>
         </form>
-      </div>
-
-      <div class="card-body">
-        <p>Try these names :</p>
-        <ul>
-          <li>Canokar</li>
-          <li>Cansimitus</li>
-          <li>CoronaTurkey</li>
-          <li>dias</li>
-          <li>emreofficialfb</li>
-          <li>gerigeldikk</li>
-          <li>DollyRayDigital</li>
-        </ul>
       </div>
     </div>
   </div>

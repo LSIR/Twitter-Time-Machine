@@ -90,7 +90,9 @@ def user(request, usr_id):
 			'tweets_metadata': json.dumps(tweets_metadata)
 		}
 		return render(request, 'user.html', context=context)
-	return HttpResponse("User not found :(")
+
+	print(type(usr_id))
+	return render(request, 'user_not_found.html', context={"user":usr_id})
 
 def tweets(request, usr_id):
 	dt = (3*24*60*60)
@@ -104,4 +106,4 @@ def tweets(request, usr_id):
 			target_ts = int(request.GET['ts'])
 			tweets_no_id = list(filter(lambda x: 'ts' in x and x['ts'] > target_ts-dt and x['ts'] < target_ts+dt, tweets_no_id))
 		return JsonResponse(tweets_no_id, safe=False)
-	return HttpResponse("User not found :(")
+	return render(request, 'user_not_found.html')
