@@ -12,6 +12,7 @@ from . import analysis
 client = pymongo.MongoClient('mongodb://localhost:27017')
 database = client['trollcheck']
 bearer_token = "AAAAAAAAAAAAAAAAAAAAABkYNgEAAAAA9gybLao9r2LyuBNHAOGDlOOivS0%3DOF9mpuGxGjJTiF1T151P5XOKHg0sAnnj05TUBbHM3VZrkv9UaS"
+autocomplete_limit = 10
 
 def home(request):
 	context = {
@@ -19,8 +20,6 @@ def home(request):
 		# 'site_name' => 'TrollCheck'
 	}
 	return render(request, 'index.html', context=context)
-
-
 
 def user(request, usr_id):
 	user = database.get_collection("users").find_one({ "_id": usr_id.lower() })
@@ -107,3 +106,10 @@ def tweets(request, usr_id):
 			tweets_no_id = list(filter(lambda x: 'ts' in x and x['ts'] > target_ts-dt and x['ts'] < target_ts+dt, tweets_no_id))
 		return JsonResponse(tweets_no_id, safe=False)
 	return render(request, 'user_not_found.html')
+
+
+def autocomplete(request, username):
+
+	users = database.get_collection("users").find({ "_id": {"$regex": "^" + username + ".*"}}, {"_id":1}).sort([("details.followers_count", -1)]).limit(autocomplete_limit)
+
+	return JsonResponse(list(users), safe=False)

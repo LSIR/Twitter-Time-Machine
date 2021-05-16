@@ -1,21 +1,19 @@
-.twitter_style {
-    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-}
-
-#twitter_title {
-    text-align: center;
-    color:#1DA1F2;
-    font-size: 70pt;
-    margin-bottom: 10%;
-}
-
 body {
     background-color:#14171A;
-    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: 'Open Sans', sans-serif;
     color:#22282e;
+    border-top: 8px solid #1DA1F2;
 }
 
-.box_color {
+h1#twitter_title {
+    text-align: center;
+    color:lightgray;
+    font-size: 5rem;
+    margin-bottom: 10%;
+    font-weight: 600;
+}
+
+.input-box-color {
     background-color:#657786;
 }
 
@@ -26,4 +24,111 @@ body {
 
 .twitter_color {
     color:#1DA1F2;
+}
+
+.underline-twitter {
+    background-image: linear-gradient(120deg, #1DA1F2 0%, #1df2b6 100%);
+    background-repeat: no-repeat;
+    background-size: 100% 0.2em;
+    background-position: 0 88%;
+    transition: background-size 0.30s ease-in;
+}
+
+.underline-twitter:hover {
+    background-size: 100% 88%;
+}
+
+#twitter-form .input-group-text {
+    border-right: ;
+}
+
+#twitter-form label {
+    color:lightgray;
+    font-size: 1.7rem;
+}
+
+#twitter-form .form-control,
+#twitter-form .input-group-text {
+    background-color:lightgray;
+}
+
+.autoComplete_highlighted {
+    color: #1DA1F2;
+}
+
+.autoComplete_result:hover {
+    background-color: rgba(29, 161, 242, 0.25);
+}
+
+
+/* User.html css */
+.bar { fill: steelblue; }
+path { 
+    stroke: steelblue;
+    stroke-width: 2;
+    fill: steelblue;
+    fill-opacity: 0.5;
+}
+
+.axis path,
+.axis line {
+    stroke: grey;
+    stroke-width: 2;
+    shape-rendering: crispEdges;
+    fill: none;
+}
+
+.grid line {
+    stroke: lightgrey;
+    stroke-opacity: 0.7;
+    shape-rendering: crispEdges;
+}
+
+.grid path {
+    stroke-width: 0;
+    fill: none;
+}
+
+
+.svg-container {
+    display: block;
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+.svg-content-responsive {
+    display: inline-block;
+    position: absolute;
+    top: 10px;
+    left: 0;
+}
+
+
+div.tooltip {	
+    position: absolute;			
+    text-align: center;							
+    padding: 2px;				
+    font: 14px sans-serif;		
+    background: rgb(32, 32, 32);	
+    color: white;
+    border: 0px;
+    border-radius: 8px;			
+    pointer-events: none;	
+    max-width: 200px;		
+}
+
+
+
+#user-header {
+    background-color: white;
+}
+
+#user-header .btn-outline-primary:hover {
+    background-color: #1DA1F2;
+    transition: 0.3s;
+}
+
+.number-box .fab,
+.number-box .fas {
+    font-size: 2rem;
 }

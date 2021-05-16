@@ -1,72 +1,15 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-<style> /* set the CSS */
-	.bar { fill: steelblue; }
-	path { 
-		stroke: steelblue;
-		stroke-width: 2;
-		fill: steelblue;
-		fill-opacity: 0.5;
-	}
-	
-	.axis path,
-	.axis line {
-		stroke: grey;
-		stroke-width: 2;
-		shape-rendering: crispEdges;
-		fill: none;
-	}
-
-	.grid line {
-		stroke: lightgrey;
-		stroke-opacity: 0.7;
-		shape-rendering: crispEdges;
-	}
-
-	.grid path {
-		stroke-width: 0;
-		fill: none;
-	}
-
-
-	.svg-container {
-		display: block;
-		position: relative;
-		width: 100%;
-		overflow: hidden;
-	}
-	.svg-content-responsive {
-		display: inline-block;
-		position: absolute;
-		top: 10px;
-		left: 0;
-	}
-
-
-	div.tooltip {	
-		position: absolute;			
-		text-align: center;							
-		padding: 2px;				
-		font: 14px sans-serif;		
-		background: rgb(32, 32, 32);	
-		color: white;
-		border: 0px;
-		border-radius: 8px;			
-		pointer-events: none;	
-		max-width: 200px;		
-	}
-	
-</style>
 <script>
-	Date.prototype.yyyymmdd = function() {
+	Date.prototype.yyyymmdd = function () {
 		var mm = this.getMonth() + 1; // getMonth() is zero-based
 		var dd = this.getDate();
 
 		return [this.getFullYear(),
-				(mm>9 ? '' : '0') + mm,
-				(dd>9 ? '' : '0') + dd
-				].join('-');
+		(mm > 9 ? '' : '0') + mm,
+		(dd > 9 ? '' : '0') + dd
+		].join('-');
 	};
 
 
@@ -75,249 +18,342 @@
 	})
 
 	function defaultImage(img) {
-		img.onerror = function() {};
+		img.onerror = function () { };
 		img.src = "https://banner2.cleanpng.com/20180715/yag/kisspng-question-mark-computer-icons-exclamation-mark-desk-question-mark-emoji-5b4bb794264216.8330599815316888521567.jpg"
 	}
 
 	let tweets = []
 	function sort_tweets(show) {
 		let nh = ""
-		if($("#tw_sort").val() == 0) { //sort by impact
-			tweets = tweets.sort((b,a) => 
+		if ($("#tw_sort").val() == 0) { //sort by impact
+			tweets = tweets.sort((b, a) =>
 				((a.retweet_count == undefined ? 0 : a.retweet_count)
-				+ (a.quote_count == undefined ? 0 : a.quote_count)
-				+ (a.favorite_count == undefined ? 0 : a.favorite_count))
+					+ (a.quote_count == undefined ? 0 : a.quote_count)
+					+ (a.favorite_count == undefined ? 0 : a.favorite_count))
 				- ((b.retweet_count == undefined ? 0 : b.retweet_count)
-				+ (b.quote_count == undefined ? 0 : b.quote_count)
-				+ (b.favorite_count == undefined ? 0 : b.favorite_count))
+					+ (b.quote_count == undefined ? 0 : b.quote_count)
+					+ (b.favorite_count == undefined ? 0 : b.favorite_count))
 			)
 		} else if ($("#tw_sort").val() == 1) { //sort by date
-			tweets = tweets.sort((a,b) => a.ts-b.ts) 
+			tweets = tweets.sort((a, b) => a.ts - b.ts)
 		}
-		tweets.forEach(function(e) {
-					let rts = (e.retweet_count !== undefined ? e.retweet_count : '?') +' <i class="bi bi-arrow-left-right"></i> '
-					let quotes = (e.quote_count !== undefined ? e.quote_count : '?')+' <i class="bi bi-chat-left-quote"></i> '
-					let favs = (e.favorite_count!== undefined ? e.favorite_count : '?')+' <i class="bi bi-heart"></i>'
-					
-					let date = new Date(e.ts * 1000)
-					nh += '<div class="card mb-1">\
+		tweets.forEach(function (e) {
+			let rts = (e.retweet_count !== undefined ? e.retweet_count : '?') + ' <i class="bi bi-arrow-left-right"></i> '
+			let quotes = (e.quote_count !== undefined ? e.quote_count : '?') + ' <i class="bi bi-chat-left-quote"></i> '
+			let favs = (e.favorite_count !== undefined ? e.favorite_count : '?') + ' <i class="bi bi-heart"></i>'
+
+			let date = new Date(e.ts * 1000)
+			nh += '<div class="card mb-1">\
 						<div class="card-body">\
-							<h6 class="card-title">'+rts+quotes+favs+'</h6>\
-							<h6 class="card-subtitle mb-2 text-muted">'+date+'</h6>\
-							<p class="card-text">'+e.text+'</p>\
+							<h6 class="card-title">'+ rts + quotes + favs + '</h6>\
+							<h6 class="card-subtitle mb-2 text-muted">'+ date + '</h6>\
+							<p class="card-text">'+ e.text + '</p>\
 						</div>\
 					</div>'
-				})
+		})
 		$("#tweetModalBody").html(nh)
-		if(show) {
+		if (show) {
 			let tweetModal = new bootstrap.Modal(document.getElementById('tweetModal'))
 			tweetModal.show()
 		}
 	}
-	
+
 </script>
-  
-<div class="row">
-	<div class="col-lg-12 col-sm-12 col-12 shadow p-3 mb-3 bg-body rounded">
-		<div class="row">
-			<div class="offset-1 col-2">
-				<img class="rounded" id="pp" width="160" height="160" src="{{ pp_url }}" onerror="defaultImage(this)"/>
-			</div>
-			<div class="col-2">
-				<h2>
-					{{ name }}
-				</h2>
-				<h5>
-					@{{ username }}
-				</h5>
-				<div class="row">
-					<div class="col-1">
-						{{ verified |safe}}
-					</div>
-					<div class="col-1">
-						{{ protected |safe}}
-					</div>
-				</div>
-				<div class="col-12 mt-3">
-					<a id="plink" href="https://twitter.com/{{ username }}" target="_blank" rel="noopener noreferrer">
-						<button type="button" class="outlink btn-outline-primary btn">View on Tweeter</button>
-					</a>
-				</div>
-			</div>
-			<div class="col-7">
-				<div class="col-12 mt-3">
-					<i class="bi bi-blockquote-left" rel="tooltip" title="User bio"></i> {{ bio }}
-				</div>
-				<div class="col-12">
-					<i class="bi bi-geo-alt-fill" rel="tooltip" title="Location"></i> {{ location }}
-				</div>
-				<div class="col-12">
-					<i class="bi bi-link" rel="tooltip" title="Profile's url"></i> {{ url }}
-				</div>
-				<div class="col-12">
-					<i class="bi bi-calendar-event" rel="tooltip" title="Account creation"></i> {{ created_at }}
-				</div>
-			</div>
-		</div>
-		<div class="row mt-2 text-center">
-			<div class="col-3">
-				<h4>
-					{{ tweet_count }} Tweets
-				</h4>
-			</div>
-			<div class="col-3">
-				<h4>
-					{{ following_count }} Following
-				</h4>
-			</div>
-			<div class="col-3">
-				<h4>
-					{{ followers_count }} Followers
-				</h4>
-			</div>
-			<div class="col-3">
-				<h4>
-					{{ likes_count }} Likes
-				</h4>
-			</div>
-		</div>
-	</div>
-	<div class="col-lg-12 col-sm-12" id="profile-secondary">
-		<ul class="nav nav-tabs" id="myTab" role="tablist">
-			<li class="nav-item" role="presentation">
-				<button class="nav-link active" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary" type="button" role="tab" aria-controls="summary" aria-selected="true">Summary</button>
-			</li>
-			<li class="nav-item" role="presentation">
-				<button class="nav-link" id="followers-tab" data-bs-toggle="tab" data-bs-target="#followers" type="button" role="tab" aria-controls="followers" aria-selected="false">Followers</button>
-			</li>
-			<li class="nav-item" role="presentation">
-				<button class="nav-link" id="tweets-tab" data-bs-toggle="tab" data-bs-target="#tweets" type="button" role="tab" aria-controls="tweets" aria-selected="false">Tweets</button>
-			</li>
-			<li class="nav-item" role="presentation">
-				<button class="nav-link" id="attributes-tab" data-bs-toggle="tab" data-bs-target="#attributes" type="button" role="tab" aria-controls="attributes" aria-selected="false">Attributes</button>
-			</li>
-			<li class="nav-item" role="presentation">
-				<button class="nav-link" id="deletions-tab" data-bs-toggle="tab" data-bs-target="#deletions" type="button" role="tab" aria-controls="deletions" aria-selected="false">Deletions</button>
-			</li>
-		</ul>
-		<div class="tab-content" id="myTabContent">
-			<div class="tab-pane fade show active" id="summary" role="tabpanel" aria-labelledby="summary-tab">
-				<div class="row mt-3">
-					<div class="col-4 shadow">
-						<div class="col-12" id="daily_chart" style="height: 300px">
 
+<div class="container">
+	<div class="row">
+		<div id="user-header" class="col-12 shadow py-3 mb-3 rounded-bottom">
+			<div class="row py-3">
+				<div class="col-12 col-md-6 offset-lg-1 col-lg-2">
+					<img class="rounded" id="pp" width="160" height="160" src="{{ pp_url }}"
+						onerror="defaultImage(this)" />
+				</div>
+				<div class="col-12 col-md-6 col-lg-2 mt-4 mt-md-0">
+					<h2>
+						{{ name }}
+					</h2>
+					<h5>
+						@{{ username }}
+					</h5>
+					<div class="row">
+						<div class="col-1">
+							{{ verified |safe}}
+						</div>
+						<div class="col-1">
+							{{ protected |safe}}
 						</div>
 					</div>
-				</div>
-			</div>
-			<div class="tab-pane fade" id="followers" role="tabpanel" aria-labelledby="followers-tab">
-				<div class="row" id="followers_chart_row">
-					<h3>Follower Count over Time</h3>
-					<div class="col-8" style="height: 500px" id="followers_chart">
-					</div>
-					<div class="col-4 shadow">
-						<div class="row">
-							<h4>Growth Data</h4>
-						</div>
-						<div class="row">
-							<div class="col-6">
-								<p>Average Growth: {{ avg_growth }} followers/day</p>
-							</div>
-							<div class="col-6">
-								<p>Max Growth: {{max_growth}} followers/day</p>
-							</div>
-						</div>
-
-						<div class="row">
-							<h4>Popularity</h4>
-						</div>
-						<div class="row">
-							<div class="col-6">
-								<p>Followers/Followees ratio: {% widthratio followers_count following_count 1 %}</p>
-							</div>
-						</div>
+					<div class="col-12">
+						<a id="plink" href="https://twitter.com/{{ username }}" target="_blank"
+							rel="noopener noreferrer">
+							<button type="button" class="outlink btn-outline-primary btn twitter_color">View on
+								Tweeter</button>
+						</a>
 					</div>
 				</div>
-			</div>
-			<div class="tab-pane fade" id="tweets" role="tabpanel" aria-labelledby="tweets-tab">
-				<h3>Favourite Count over Time</h3>
-				<div class="row" id="favorites_chart_row">
-					<div class="col-8" style="height: 500px" id="favorites_chart">
+				<div class="col-12 col-lg-6 mt-4 mt-lg-0">
+					<div class="col-12">
+						<i class="bi bi-blockquote-left" rel="tooltip" title="User bio"></i> {{ bio }}
 					</div>
-				</div>
-				<h3>Tweet Count over Time</h3>
-				<div class="row" id="statuses_chart_row">
-					<div class="col-8" style="height: 500px" id="statuses_chart">
+					<div class="col-12">
+						<i class="bi bi-geo-alt-fill" rel="tooltip" title="Location"></i> {{ location }}
 					</div>
-				</div>
-			</div>
-			<div class="tab-pane fade" id="attributes" role="tabpanel" aria-labelledby="attributes-tab">
-				<div class="row">
-					<div class="col-4">
-						<h4>Changes in the account name</h4>
-						<p id="acc_name_changes"></p>
-						
+					<div class="col-12">
+						<i class="bi bi-link" rel="tooltip" title="Profile's url"></i> {{ url }}
 					</div>
-					<div class="col-4">
-						<h4>Changes in the name</h4>
-						<p id="name_changes"></p>
-					</div>
-					<div class="col-4">
-						<h4>Changes in the description</h4>
-						<p id="description_changes"></p>
-					</div>
-				</div>
-				<div class="row">
-					<div id="levenshtein_chart" class="col-12" style="height: 500px">
-					</div>
-				</div>
-			</div>
-			<div class="tab-pane fade" id="deletions" role="tabpanel" aria-labelledby="deletions-tab">
-				<h3 id="deleted_title"></h3>
-				<div class="row" id="deletion_chart_row">
-					<div id="deletion_chart" class="col-8" style="height: 500px">
-					</div>
-					<div class="col-4">
-
+					<div class="col-12">
+						<i class="bi bi-calendar-event" rel="tooltip" title="Account creation"></i> {{ created_at }}
 					</div>
 				</div>
 			</div>
 		</div>
-	</div>
-	<div class="offset-lg-1 col-lg-11 col-sm-12">
-		...
 	</div>
 </div>
 
+<div class="container px-0 mt-2">
+	<div class="row">
+		<div class="col-12">
+			<div class="row">
+				<div class="col-6 col-lg-3 number-box">
+					<div class="card">
+						<div class="card-body">
+							<div class="row align-items-center">
+								<div class="col">
+
+									<h6 class="text-uppercase text-muted mb-2">
+										Tweets
+									</h6>
+
+									<span class="h2 mb-0">
+										{{ tweet_count }}
+									</span>
+
+								</div>
+								<div class="col-auto">
+									<span class="fab fa-twitter text-muted mb-0"></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-6 col-lg-3 number-box">
+					<div class="card">
+						<div class="card-body">
+							<div class="row align-items-center">
+								<div class="col">
+
+									<h6 class="text-uppercase text-muted mb-2">
+										Following
+									</h6>
+
+									<span class="h2 mb-0">
+										{{ following_count }}
+									</span>
+
+								</div>
+								<div class="col-auto">
+									<span class="fas fa-address-book text-muted mb-0"></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-6 col-lg-3 mt-4 mt-lg-0 number-box">
+					<div class="card">
+						<div class="card-body">
+							<div class="row align-items-center">
+								<div class="col">
+
+									<h6 class="text-uppercase text-muted mb-2">
+										Followers
+									</h6>
+
+									<span class="h2 mb-0">
+										{{ followers_count }}
+									</span>
+
+								</div>
+								<div class="col-auto">
+									<span class="fas fa-users text-muted mb-0"></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-6 col-lg-3 mt-4 mt-lg-0 number-box">
+					<div class="card">
+						<div class="card-body">
+							<div class="row align-items-center">
+								<div class="col">
+
+									<h6 class="text-uppercase text-muted mb-2">
+										Likes
+									</h6>
+
+									<span class="h2 mb-0">
+										{{ likes_count }}
+									</span>
+
+								</div>
+								<div class="col-auto">
+									<span class="fas fa-heart text-muted mb-0"></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<div class="container px-0 mt-4">
+	<div class="row">
+		<div class="col-lg-12 col-sm-12" id="profile-secondary">
+			<ul class="nav nav-tabs" id="myTab" role="tablist">
+				<li class="nav-item" role="presentation">
+					<button class="nav-link active" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary"
+						type="button" role="tab" aria-controls="summary" aria-selected="true">Summary</button>
+				</li>
+				<li class="nav-item" role="presentation">
+					<button class="nav-link" id="followers-tab" data-bs-toggle="tab" data-bs-target="#followers"
+						type="button" role="tab" aria-controls="followers" aria-selected="false">Followers</button>
+				</li>
+				<li class="nav-item" role="presentation">
+					<button class="nav-link" id="tweets-tab" data-bs-toggle="tab" data-bs-target="#tweets" type="button"
+						role="tab" aria-controls="tweets" aria-selected="false">Tweets</button>
+				</li>
+				<li class="nav-item" role="presentation">
+					<button class="nav-link" id="attributes-tab" data-bs-toggle="tab" data-bs-target="#attributes"
+						type="button" role="tab" aria-controls="attributes" aria-selected="false">Attributes</button>
+				</li>
+				<li class="nav-item" role="presentation">
+					<button class="nav-link" id="deletions-tab" data-bs-toggle="tab" data-bs-target="#deletions"
+						type="button" role="tab" aria-controls="deletions" aria-selected="false">Deletions</button>
+				</li>
+			</ul>
+			<div class="tab-content" id="myTabContent">
+				<div class="tab-pane fade show active" id="summary" role="tabpanel" aria-labelledby="summary-tab">
+					<div class="row mt-3">
+						<div class="col-4 shadow">
+							<div class="col-12" id="daily_chart" style="height: 300px">
+
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="tab-pane fade" id="followers" role="tabpanel" aria-labelledby="followers-tab">
+					<div class="row" id="followers_chart_row">
+						<h3>Follower Count over Time</h3>
+						<div class="col-8" style="height: 500px" id="followers_chart">
+						</div>
+						<div class="col-4 shadow">
+							<div class="row">
+								<h4>Growth Data</h4>
+							</div>
+							<div class="row">
+								<div class="col-6">
+									<p>Average Growth: {{ avg_growth }} followers/day</p>
+								</div>
+								<div class="col-6">
+									<p>Max Growth: {{max_growth}} followers/day</p>
+								</div>
+							</div>
+
+							<div class="row">
+								<h4>Popularity</h4>
+							</div>
+							<div class="row">
+								<div class="col-6">
+									<p>Followers/Followees ratio: {% widthratio followers_count following_count 1 %}</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="tab-pane fade" id="tweets" role="tabpanel" aria-labelledby="tweets-tab">
+					<h3>Favourite Count over Time</h3>
+					<div class="row" id="favorites_chart_row">
+						<div class="col-8" style="height: 500px" id="favorites_chart">
+						</div>
+					</div>
+					<h3>Tweet Count over Time</h3>
+					<div class="row" id="statuses_chart_row">
+						<div class="col-8" style="height: 500px" id="statuses_chart">
+						</div>
+					</div>
+				</div>
+				<div class="tab-pane fade" id="attributes" role="tabpanel" aria-labelledby="attributes-tab">
+					<div class="row">
+						<div class="col-4">
+							<h4>Changes in the account name</h4>
+							<p id="acc_name_changes"></p>
+
+						</div>
+						<div class="col-4">
+							<h4>Changes in the name</h4>
+							<p id="name_changes"></p>
+						</div>
+						<div class="col-4">
+							<h4>Changes in the description</h4>
+							<p id="description_changes"></p>
+						</div>
+					</div>
+					<div class="row">
+						<div id="levenshtein_chart" class="col-12" style="height: 500px">
+						</div>
+					</div>
+				</div>
+				<div class="tab-pane fade" id="deletions" role="tabpanel" aria-labelledby="deletions-tab">
+					<h3 id="deleted_title"></h3>
+					<div class="row" id="deletion_chart_row">
+						<div id="deletion_chart" class="col-8" style="height: 500px">
+						</div>
+						<div class="col-4">
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+
 {% load static %}
-<script src="{% static 'tc-datautils.js' %}"></script> 
-<script src="{% static 'd3-chart-builder.js' %}"></script> 
-<script src="{% static 'tc-chart.js' %}"></script> 
+<script src="{% static 'tc-datautils.js' %}"></script>
+<script src="{% static 'd3-chart-builder.js' %}"></script>
+<script src="{% static 'tc-chart.js' %}"></script>
 <script>
 	let history_raw = JSON.parse("{{ history |escapejs}}")
 	let tweets_metadata = JSON.parse("{{tweets_metadata|escapejs}}")
-	tcMakeHistoryChart('#followers_chart', history_raw, 'followers_count', {{peaks}}, function(d) {
-				$.ajax("/tweets/{{ username }}?ts="+(d.x / 1000)).done(function(res) {
-					let tweetModal = new bootstrap.Modal(document.getElementById('tweetModal'))
-					let nh = ""
-					res.forEach(function(e) {
-						nh += '<div class="card mb-1">\
+	tcMakeHistoryChart('#followers_chart', history_raw, 'followers_count', {{ peaks }}, function (d) {
+		$.ajax("/tweets/{{ username }}?ts=" + (d.x / 1000)).done(function (res) {
+			let tweetModal = new bootstrap.Modal(document.getElementById('tweetModal'))
+			let nh = ""
+			res.forEach(function (e) {
+				nh += '<div class="card mb-1">\
 								<div class="card-body">\
-									<h5 class="card-title">'+'</h5>\
-									<h6 class="card-subtitle mb-2 text-muted">'+e.retweet_count+' <i class="bi bi-arrow-left-right"></i> '+e.quote_count+' <i class="bi bi-chat-left-quote"></i> '+e.favorite_count+'<i class="bi bi-heart"></i></h6>\
-									<p class="card-text">'+e.text+'</p>\
+									<h5 class="card-title">'+ '</h5>\
+									<h6 class="card-subtitle mb-2 text-muted">'+ e.retweet_count + ' <i class="bi bi-arrow-left-right"></i> ' + e.quote_count + ' <i class="bi bi-chat-left-quote"></i> ' + e.favorite_count + '<i class="bi bi-heart"></i></h6>\
+									<p class="card-text">'+ e.text + '</p>\
 								</div>\
 							</div>'
-					})
-					$("#tweetModalBody").html(nh)
-					tweets = res;
-					sort_tweets(false);
-					tweetModal.show()
-				})
-			},
-			"Followers", e => "")
-	tcMakeHistoryChart('#statuses_chart', history_raw, 'statuses_count', [], function(d) {}, "Tweets",e => "")
-	tcMakeHistoryChart('#favorites_chart', history_raw, 'favourites_count', [], function(d) {}, "Favorites", e => "")
+			})
+			$("#tweetModalBody").html(nh)
+			tweets = res;
+			sort_tweets(false);
+			tweetModal.show()
+		})
+	},
+		"Followers", e => "")
+	tcMakeHistoryChart('#statuses_chart', history_raw, 'statuses_count', [], function (d) { }, "Tweets", e => "")
+	tcMakeHistoryChart('#favorites_chart', history_raw, 'favourites_count', [], function (d) { }, "Favorites", e => "")
 	tcMakeDailyBarchart('#daily_chart', tweets_metadata.filter(e => e.ts !== undefined))
 
 	let screen_name_history = JSON.parse("{{screen_names|escapejs}}")
@@ -327,61 +363,61 @@
 	function writeAttributeHistory(history, attr_name, divID, attr_json_name) {
 		let size = history.length;
 		let message = ""
-		if(size == 1) {
-			message = "There have been no changes in "+attr_name;
+		if (size == 1) {
+			message = "There have been no changes in " + attr_name;
 		} else {
-			message = "There have been "+(size-1)+" changes in "+attr_name;
+			message = "There have been " + (size - 1) + " changes in " + attr_name;
 			let dist = 0;
-			for(let i = 1; i < size; i++) {
-				dist += levenshteinDistance(history[i][attr_json_name], history[i-1][attr_json_name])
+			for (let i = 1; i < size; i++) {
+				dist += levenshteinDistance(history[i][attr_json_name], history[i - 1][attr_json_name])
 			}
-			message += "<br/>The Levenshtein distance of consecutive pairs of "+attr_name+" is "+dist;
+			message += "<br/>The Levenshtein distance of consecutive pairs of " + attr_name + " is " + dist;
 		}
-		$("#"+divID).html(message)
+		$("#" + divID).html(message)
 	}
 
 	writeAttributeHistory(screen_name_history, "user name", "acc_name_changes", "screen_name");
 	writeAttributeHistory(name_history, "name", "name_changes", "name");
-	writeAttributeHistory(description_history, "description", "description_changes","description");
+	writeAttributeHistory(description_history, "description", "description_changes", "description");
 
 	function levenshteinAt(ts) {
 		let s = 0
 
-		screen_name_history.forEach(function(e,idx) {
-			if(e.ts == ts && idx > 0) {
-				s += levenshteinDistance(screen_name_history[idx-1].screen_name, screen_name_history[idx].screen_name)
+		screen_name_history.forEach(function (e, idx) {
+			if (e.ts == ts && idx > 0) {
+				s += levenshteinDistance(screen_name_history[idx - 1].screen_name, screen_name_history[idx].screen_name)
 			}
 		});
-		name_history.forEach(function(e,idx) {
-			if(e.ts == ts && idx > 0) {
-				s += levenshteinDistance(name_history[idx-1].name, name_history[idx].name)
+		name_history.forEach(function (e, idx) {
+			if (e.ts == ts && idx > 0) {
+				s += levenshteinDistance(name_history[idx - 1].name, name_history[idx].name)
 			}
 		});
-		description_history.forEach(function(e,idx) {
-			if(e.ts == ts && idx > 0) {
-				s += levenshteinDistance(description_history[idx-1].description, description_history[idx].description)
+		description_history.forEach(function (e, idx) {
+			if (e.ts == ts && idx > 0) {
+				s += levenshteinDistance(description_history[idx - 1].description, description_history[idx].description)
 			}
 		});
 		return s;
 	}
 
 	let levenshtein_data = []
-	history_raw.forEach(function(elem, idx) {
-		if(idx != 0) {
+	history_raw.forEach(function (elem, idx) {
+		if (idx != 0) {
 			let a = levenshteinAt(elem['ts']);
-			if(a != 0) {
-				levenshtein_data.push({x: (new Date(elem['ts']*1000)).toUTCString(), y: a})
+			if (a != 0) {
+				levenshtein_data.push({ x: (new Date(elem['ts'] * 1000)).toUTCString(), y: a })
 			}
 		}
 	})
 
 	tcMakeLevenshteinChart("#levenshtein_chart", levenshtein_data, name_history, screen_name_history, description_history)
-	tweets_metadata.sort((b,a) => b.ts-a.ts)
+	tweets_metadata.sort((b, a) => b.ts - a.ts)
 
 	//let deletion_history = []
 	let deletion_count = 0
-	tweets_metadata.forEach(function(e) {
-		if(e.deleted) {
+	tweets_metadata.forEach(function (e) {
+		if (e.deleted) {
 			//deletion_history.push({details: {deletions: deletion_count}, ts: e.ts})
 			deletion_count += 1;
 		}
@@ -393,37 +429,36 @@
 		})
 	}
 	*/
-	$("#deleted_title").html("This user has deleted "+deletion_count+" tweets");
+	$("#deleted_title").html("This user has deleted " + deletion_count + " tweets");
 </script>
 
 
 <!-- Modal -->
 <div class="modal fade" id="tweetModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
-	  <div class="modal-content">
-		<div class="modal-header">
-		  <h5 class="modal-title" id="exampleModalLabel">Tweets around this date</h5>
-		  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-		</div>
-		<div class="modal-body">
-			<div class="offset-6 col-6 mb-3">
-				<div class="row">
-					<label for="sort" class="col-3 col-form-label">Sort by</label>
-					<div class="col-9">
-						<select id="tw_sort" class="form-select" onchange="sort_tweets(false)">
-							<option selected value="0">Impact</option>
-							<option value="1">Date</option>
-						</select>
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">Tweets around this date</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<div class="offset-6 col-6 mb-3">
+					<div class="row">
+						<label for="sort" class="col-3 col-form-label">Sort by</label>
+						<div class="col-9">
+							<select id="tw_sort" class="form-select" onchange="sort_tweets(false)">
+								<option selected value="0">Impact</option>
+								<option value="1">Date</option>
+							</select>
+						</div>
 					</div>
 				</div>
+				<div id="tweetModalBody"></div>
 			</div>
-			<div id="tweetModalBody"></div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+			</div>
 		</div>
-		<div class="modal-footer">
-		  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-		</div>
-	  </div>
 	</div>
-  </div>
+</div>
 {% endblock %}
-
