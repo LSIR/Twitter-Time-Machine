@@ -1,13 +1,17 @@
 body {
     background-color:#14171A;
     font-family: 'Open Sans', sans-serif;
-    color:#22282e;
+    color:#4e5961;
     border-top: 8px solid #1DA1F2;
+}
+
+.text-dark-color {
+    color:#4e5961;
 }
 
 h1#twitter_title {
     text-align: center;
-    color:lightgray;
+    color:white;
     font-size: 5rem;
     margin-bottom: 10%;
     font-weight: 600;
@@ -15,6 +19,7 @@ h1#twitter_title {
 
 .input-box-color {
     background-color:#657786;
+    color: lightgray;
 }
 
 .twitter_button {
@@ -43,7 +48,6 @@ h1#twitter_title {
 }
 
 #twitter-form label {
-    color:lightgray;
     font-size: 1.7rem;
 }
 
@@ -57,6 +61,14 @@ h1#twitter_title {
 }
 
 .autoComplete_result:hover {
+    background-color: rgba(29, 161, 242, 0.25);
+}
+
+.autoComplete_result:hover {
+    background-color: rgba(29, 161, 242, 0.25);
+}
+
+.autoComplete_selected {
     background-color: rgba(29, 161, 242, 0.25);
 }
 
@@ -131,4 +143,37 @@ div.tooltip {
 .number-box .fab,
 .number-box .fas {
     font-size: 2rem;
+}
+
+.nav-tabs {
+    border: none;
+}
+
+.nav-tabs .nav-link {
+    background-color: white;
+    color: #1DA1F2;
+    font-weight: 600;
+}
+
+.nav-tabs .nav-link.active {
+    background-color:#1DA1F2;
+    color: white;
+    border-color: #1DA1F2;
+    font-weight: 600;
+}
+
+.nav-item:first-child {
+    margin-right: .3rem;
+}
+
+.nav-item:last-child {
+    margin-left: .3rem;
+}
+
+.nav-item:not(:first-child):not(:last-child) {
+    margin: 0 .3rem 0 .3rem;
+}
+
+.tab-pane-content {
+    border-top: .2rem solid #1DA1F2;
 }

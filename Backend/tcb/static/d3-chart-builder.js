@@ -17,6 +17,9 @@ const SCALE_MAP			= 	0x300;
 
 const formatTime = d3.timeFormat("%e %B %Y");
 
+const TWITTER_COLOR = '#1DA1F2';
+const DOT_COLOR = '#14171A';
+
 class TCChart {
 
 
@@ -100,7 +103,7 @@ class TCChart {
 					.attr("cy", function(d) { return yScale(d.y) })
 					.attr("r",  function(d) { return highlighted_pts.includes(d.x / 1000) ? 10 : 4})
 					.attr('opacity',  function(d) { return highlighted_pts.includes(d.x / 1000) ? 0.8 : 0.4})
-					.style('fill', function(d) { return highlighted_pts.includes(d.x / 1000) ? 'red' : 'blue' })
+					.style('fill', function(d) { return highlighted_pts.includes(d.x / 1000) ? DOT_COLOR : TWITTER_COLOR }) // dark gray and twitter blue
 					.on("mouseover", hover_evt)					
 					.on("mouseout", out_evt)
 					.on("click", click_evt)
@@ -192,7 +195,7 @@ class TCChart {
 				.attr("cy", function(d) { return _ys(d.y) })
 				.attr("r",  function(d) { return _h.includes(d.x / 1000) ? 10 : 4})
 				.attr('opacity',  function(d) { return _h.includes(d.x / 1000) ? 0.8 : 0.4})
-				.style('fill', function(d) { return _h.includes(d.x / 1000) ? 'red' : 'blue' })
+				.style('fill', function(d) { return _h.includes(d.x / 1000) ? DOT_COLOR : TWITTER_COLOR })
 				.on("mouseover", this.hover_evt)					
 				.on("mouseout", this.out_evt)
 				.on("click", this.click_evt)
@@ -409,7 +412,7 @@ class TCInternalBarChartBuilder {
 			self.svg.selectAll("bar")
 				.data(self.data)
 				.enter().append("rect")
-				.style("fill", "steelblue")
+				.style("fill", TWITTER_COLOR)
 				.attr("x", function(d) { return self.xScale(d.x); })
 				.attr("width", self.xScale.bandwidth())
 				.attr("y", function(d) { return self.yScale(d.y); })
