@@ -1,6 +1,33 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
+
+<div class="row" style="margin-top: 10%;">
+
+  <div class="col-8 offset-2">
+
+    <h1 id="twitter_title" ><span class="underline-twitter">Twitter Time Machine</span></h1>
+    
+    <div class="card shadow-lg p-3 mb-5 rounded input-box-color">
+      <!--<img src="..." class="card-img-top" alt="..."> if we have a logo we can put it there :) -->
+      <div class="card-body">
+        <form autocomplete="off" id="twitter-form" >
+          <label for="twusr" class="mb-4">Please enter a popular username</label>
+          <div class="input-group mb-3">
+            <span class="input-group-text" id="at-addon">@</span>
+            <input type="text" class="form-control" id="twusr" name="usr_id" placeholder="BarackObama" aria-describedby="at-addon" onkeypress="kp(event)">
+          </div>
+          <div class="input-group justify-content-center">
+            <button type="button" class="btn btn-outline-secondary twitter_button" onclick="user_search()">Search !</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@9.1.1/dist/js/autoComplete.min.js"></script>
+
 <script>
   //NOTE: It might be worth it to move scripts into separate files, tbd
   function user_search() {
@@ -14,39 +41,41 @@
         user_search();
     }
 }
+
+  const autoCompleteJS = new autoComplete({
+    selector: "#twusr",
+    placeHolder: "BarackObama",
+    data: {
+      src: async () => {
+
+        const username = document.querySelector("#twusr").value
+
+        if (username.length < 2) {
+          return []
+        }
+
+        // Fetch Data from external Source
+        const source = await fetch(`/autocomplete/${username}`);
+        const data = await source.json();
+
+        // Returns Fetched data
+        return data
+      },
+      key: ["_id"],
+      cache: false
+    },
+    resultItem: {
+      highlight: {
+        render: true
+      }
+    },
+    onSelection: (event) => {
+      document.querySelector("#twusr").value = event.selection.value._id;
+    }
+  });
+
+
 </script>
 
-<div class="row" style="margin-top: 15%;">
-  <div class="col-8 offset-2">
-    <div class="card shadow-lg p-3 mb-5 bg-white rounded">
-      <!--<img src="..." class="card-img-top" alt="..."> if we have a logo we can put it there :) -->
-      <div class="card-body">
-        <form>
-          <label for="twusr">Twitter user</label>
-          <div class="input-group mb-3">
-            <span class="input-group-text" id="at-addon" style="background-color: transparent;">@</span>
-            <input type="text" class="form-control" id="twusr" placeholder="JoeBiden" aria-describedby="at-addon" onkeypress="kp(event)">
-          </div>
-          <div class="input-group justify-content-center">
-            <button type="button" class="btn btn-outline-secondary" onclick="user_search()">Search !</button>
-          </div>
-        </form>
-      </div>
-
-      <div class="card-body">
-        <p>Try these names :</p>
-        <ul>
-          <li>Canokar</li>
-          <li>Cansimitus</li>
-          <li>CoronaTurkey</li>
-          <li>dias</li>
-          <li>emreofficialfb</li>
-          <li>gerigeldikk</li>
-          <li>DollyRayDigital</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</div>
 {% endblock %}
 

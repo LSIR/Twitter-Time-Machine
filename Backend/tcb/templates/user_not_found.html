@@ -1,0 +1,32 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+
+<script>
+    function goBack() {
+      window.history.back();
+    }
+</script>
+
+<div class="row" style="margin-top: 10%;">
+
+    <div class="col-8 offset-2">
+
+        <h1 id="twitter_title" ><span class="underline-twitter">Twitter Time Machine</span></h1>
+
+        <div class="card shadow-lg p-3 mb-5 rounded box_color">
+        <!--<img src="..." class="card-img-top" alt="..."> if we have a logo we can put it there :) -->
+            <div class="card-body">
+                <p class="h1">User @{{ user }} not found</p>
+            </div>
+
+            <div class="card-body">
+                Please note that the users present on our website are the ones with more than 5,000 followers and who sent more than 10 tweets as of december 2020. 
+            </div>
+            <div class="input-group justify-content-center">
+                <button type="button" class="btn btn-outline-secondary twitter_button" onclick="goBack()()">Try again!</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

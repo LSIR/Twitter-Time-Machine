@@ -61,10 +61,10 @@ function tcMakeHistoryChart(divID, raw_data, metric, highlighted_points, click_f
 		.build(getWidthSafe($(divID), "#myTabContent"), $(divID).height());
 	
 	let safeDivID = divID.substr(1);
-	$(divID+"_row").append('<div class="row col-8 mt-3" id="'+safeDivID+'_controls"></div>')
+	$(divID+"_row").append('<div class="row col-12 mt-3" id="'+safeDivID+'_controls"></div>')
 	let controlRow = $(divID+'_controls')
 	controlRow.append('<div class="col-3 form-switch">\
-				<label class="form-check-label" for="logscale_'+safeDivID+'">Logarithmic scale</label>\
+				<label class="form-check-label" for="logscale_'+safeDivID+'">Log scale</label>\
 				<input class="form-check-input" type="checkbox" id="logscale_'+safeDivID+'" style="margin-left: 0">\
 				</div>')
 	controlRow.append('<div class="col-3 form-switch">\
@@ -152,14 +152,20 @@ function tcMakeLevenshteinChart(divID, data, names, screen_names, descriptions) 
 		.setParentDiv($(divID))
 		.setData(data)
 		.setFilled(true)
-		.setMargin(50,50,50,20)
+		.setMargin(50,200,50,20)
 		.setXAxisScale(BAND_SCALE)
 		.setXAxisScaleDomain(SCALE_MAP)
 		.setYAxisScale(LINEAR_SCALE)
 		.setYAxisScaleDomain(SCALE_ZERO_MAX)
-		.setXLabel("Date")
+		.setXLabel("")
 		.setYLabel("Levenshtein Distance")
 		.build(getWidthSafe($(divID), "#myTabContent"), $(divID).height());
+
+	chart.xAxis.selectAll("text")
+		.attr("transform", "rotate(-90)")
+		.attr("x",-20)
+		.attr("y",-7)
+		.style("text-anchor", "end");
 
 	chart.svg.selectAll("rect")
 		.on("mouseover", function(d) {
