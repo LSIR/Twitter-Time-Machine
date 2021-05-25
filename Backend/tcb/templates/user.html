@@ -378,21 +378,19 @@
 	tcMakeLevenshteinChart("#levenshtein_chart", levenshtein_data, name_history, screen_name_history, description_history)
 	tweets_metadata.sort((b,a) => b.ts-a.ts)
 
-	//let deletion_history = []
+	let deletion_history = []
 	let deletion_count = 0
 	tweets_metadata.forEach(function(e) {
-		if(e.deleted) {
-			//deletion_history.push({details: {deletions: deletion_count}, ts: e.ts})
+		if(e.deleted && e['ts'] != undefined) {
 			deletion_count += 1;
+			deletion_history.push({details: {deletions: deletion_count}, ts: e.ts/1000})
 		}
 	})
-	/*
-	if(deletion_history.length > 0) {
-		tcMakeHistoryChart('#deletion_chart', deletion_history, 'deletions', [], function(d) {}, "Number of deleted tweets", function(d) {
 	
-		})
+	if(deletion_history.length > 0) {
+		tcMakeHistoryChart('#deletion_chart', deletion_history, 'deletions', [], function(d) {}, "Number of deleted tweets", e=>"");
 	}
-	*/
+	
 	$("#deleted_title").html("This user has deleted "+deletion_count+" tweets");
 </script>
 
