@@ -102,6 +102,6 @@ def tweets(request, usr_id):
 		tweets_no_id = list(map(lambda x: {i:x[i] for i in x if i!='_id'}, tweets))
 		if 'ts' in request.GET:
 			target_ts = int(request.GET['ts'])
-			tweets_no_id = list(filter(lambda x: 'ts' in x and x['ts'] > target_ts-dt and x['ts'] < target_ts+dt, tweets_no_id))
+			tweets_no_id = list(filter(lambda x: 'ts' in x and int(x['ts']) > target_ts-dt and int(x['ts']) < target_ts+dt, tweets_no_id))
 		return JsonResponse(tweets_no_id, safe=False)
 	return HttpResponse("User not found :(")
