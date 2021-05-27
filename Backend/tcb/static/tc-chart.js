@@ -133,13 +133,49 @@ function tcMakeDailyBarchart(divID, raw_data) {
 		.setParentDiv($(divID))
 		.setData(data)
 		.setFilled(true)
-		.setMargin(40,80,50,0)
+		.setMargin(10,80,50,0)
 		.setXAxisScale(BAND_SCALE)
 		.setXAxisScaleDomain(SCALE_MAP)
 		.setYAxisScale(LINEAR_SCALE)
 		.setYAxisScaleDomain(SCALE_ZERO_MAX)
 		.setXLabel("")
 		.setYLabel("Number of tweets")
+		.build(530, 300);
+}
+
+function tcMakeSourcesBarchart(divID, raw_data) {
+	let sources = {};
+	raw_data.forEach(function(e) {
+		let source = e.source;
+		if(source != undefined) {
+			source = source.replace( /(<([^>]+)>)/ig, '');
+		} else {
+			return;
+		}
+		if(source in sources) {
+			sources[source] += 1;
+		} else {
+			sources[source] = 1;
+		}
+	});
+
+	let data = [];
+	Object.keys(sources).forEach(e => 
+		data.push({y: e, x: sources[e]})
+	);
+	data = data.sort((a,b) => a.x - b.x);
+	let builder = new TCChartBuilder(BAR_CHART);
+	let chart = builder
+		.setParentDiv($(divID))
+		.setData(data)
+		.setFilled(true)
+		.setMargin(10,60,100,0)
+		.setYAxisScale(BAND_SCALE)
+		.setYAxisScaleDomain(SCALE_MAP)
+		.setXAxisScale(LINEAR_SCALE)
+		.setXAxisScaleDomain(SCALE_ZERO_MAX)
+		.setYLabel("")
+		.setXLabel("Number of tweets")
 		.build(530, 300);
 }
 

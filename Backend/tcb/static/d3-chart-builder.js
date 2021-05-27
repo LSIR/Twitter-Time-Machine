@@ -153,7 +153,7 @@ class TCChart {
 		let _ib = this.internalBuilder;
 		let _h = this.height
 
-		this.generators = this.internalBuilder.build(this.xScale, this.yScale, this.height)
+		this.generators = this.internalBuilder.build(this.xScale, this.yScale, this.width, this.height)
 		this.generators[1](this, 500)
 	}
 
@@ -339,7 +339,7 @@ class TCChartBuilder {
 		}
 		this.yScale.range([this.height, 0])
 		
-		let generators = this.internalBuilder.build(this.xScale, this.yScale, this.height);
+		let generators = this.internalBuilder.build(this.xScale, this.yScale, this.width, this.height);
 
 		return new TCChart(this.parentDiv, this.width, this.height, this.margin, this.xScale, this.yScale, 
 							this.data, generators, (this.type === DOTTED_LINE_CHART), this.hover_evt, this.out_evt, this.click_evt,
@@ -354,7 +354,7 @@ class TCInternalLineChartBuilder {
 		this.filled = filled;
 	}
 
-	build(xScale, yScale, height) {
+	build(xScale, yScale, width, height) {
 		let line = undefined;
 		if(this.filled) {
 			line = d3.area()
@@ -406,17 +406,28 @@ class TCInternalBarChartBuilder {
 		this.filled = filled;
 	}
 
-	build(xScale, yScale, height) {
+	build(xScale, yScale, width, height) {
 		let create = function(self) {
 			console.log(self.data)
-			self.svg.selectAll("bar")
-				.data(self.data)
-				.enter().append("rect")
-				.style("fill", TWITTER_COLOR)
-				.attr("x", function(d) { return self.xScale(d.x); })
-				.attr("width", self.xScale.bandwidth())
-				.attr("y", function(d) { return self.yScale(d.y); })
-				.attr("height", function(d) { return height - self.yScale(d.y); });
+			if(self.xScale.bandwidth != undefined) {
+				self.svg.selectAll("bar")
+					.data(self.data)
+					.enter().append("rect")
+					.style("fill", TWITTER_COLOR)
+					.attr("x", function(d) { return self.xScale(d.x); })
+					.attr("width", self.xScale.bandwidth())
+					.attr("y", function(d) { return self.yScale(d.y); })
+					.attr("height", function(d) { return height - self.yScale(d.y); });
+			} else {
+				self.svg.selectAll("bar")
+					.data(self.data)
+					.enter().append("rect")
+					.style("fill", TWITTER_COLOR)
+					.attr("y", function(d) { return self.yScale(d.y); })
+					.attr("height", self.yScale.bandwidth())
+					.attr("x", function(d) { return 1; })
+					.attr("width", function(d) { return self.xScale(d.x); });
+			}
 		}
 
 		let update = function(self, transition_time) {

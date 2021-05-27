@@ -241,9 +241,14 @@
 	<div class="tab-content" id="myTabContent">
 		<div class="tab-pane fade show active" id="summary" role="tabpanel" aria-labelledby="summary-tab">
 			<div class="container-fluid">
-				<div class="row">
-					<div class="col-8 px-4 bg-white rounded-bottom">
+				<div class="row bg-white rounded-bottom">
+					<div class="col-6 px-4">
+						<h5>Daily rythm</h5>
 						<div class="col-12" id="daily_chart"></div>
+					</div>
+					<div class="col-6 px-4">
+						<h5>Sources</h5>
+						<div class="col-12" id="sources_chart"></div>
 					</div>
 				</div>
 			</div>
@@ -362,6 +367,7 @@
 	tcMakeHistoryChart('#statuses_chart', history_raw, 'statuses_count', [], function (d) { }, "Tweets", e => "")
 	tcMakeHistoryChart('#favorites_chart', history_raw, 'favourites_count', [], function (d) { }, "Favorites", e => "")
 	tcMakeDailyBarchart('#daily_chart', tweets_metadata.filter(e => e.ts !== undefined))
+	tcMakeSourcesBarchart('#sources_chart', tweets_metadata)
 
 	let screen_name_history = JSON.parse("{{screen_names|escapejs}}")
 	let name_history = JSON.parse("{{names|escapejs}}")
