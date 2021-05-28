@@ -38,6 +38,7 @@ function optimizePoints(data, max, peaks) {
 
 /** https://www.tutorialspoint.com/levenshtein-distance-in-javascript */
 function levenshteinDistance(str1, str2) {
+	if(str1 == null || str2 == null) return 0;
 	const track = Array(str2.length + 1).fill(null).map(() =>
    	Array(str1.length + 1).fill(null));
 	for (let i = 0; i <= str1.length; i += 1) {
@@ -57,4 +58,14 @@ function levenshteinDistance(str1, str2) {
 		}
 	}
 	return track[str2.length][str1.length];
+}
+
+function profileGrade(screen_name_history, name_history, description_history, metrics_history, deletion_history) {
+	//Grade = 100-(dist(screen_name))-(dist(name)/10)-(dist(description)/1000)-(#deletions/20)
+	let grade = 100;
+	grade -= screen_name_history.reduce((p, c, idx, a) => p + levenshteinDistance(a[Math.max(0, idx-1)].screen_name, c.screen_name), 0);
+	grade -= name_history.reduce((p, c, idx, a) => p + levenshteinDistance(a[Math.max(0, idx-1)].name, c.name), 0) / 10;
+	grade -= description_history.reduce((p, c, idx, a) => p + levenshteinDistance(a[Math.max(0, idx-1)].description, c.description), 0) / 1000;
+	grade -= deletion_history.length / 20;
+	return Math.max(0,grade);
 }

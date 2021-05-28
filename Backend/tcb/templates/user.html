@@ -241,11 +241,17 @@
 	<div class="tab-content" id="myTabContent">
 		<div class="tab-pane fade show active" id="summary" role="tabpanel" aria-labelledby="summary-tab">
 			<div class="container-fluid">
-				<div class="row bg-white rounded-bottom">
+				<div class="row bg-white pt-4">
+					<div class="col-6 px-4">
+						<h3>Profile Grade</h3>
+						<h1 class="offset-1" style="font-size: 10em;"><span class="badge" id="profile_grade"></span></h1>
+					</div>
 					<div class="col-6 px-4">
 						<h5>Daily rythm</h5>
 						<div class="col-12" id="daily_chart"></div>
 					</div>
+				</div>
+				<div class="row bg-white rounded-bottom">
 					<div class="col-6 px-4">
 						<h5>Sources</h5>
 						<div class="col-12" id="sources_chart"></div>
@@ -441,6 +447,24 @@
 	}
 	
 	$("#deleted_title").html("This user has deleted "+deletion_count+" tweets");
+
+	let grade = profileGrade(screen_name_history, name_history, description_history, history_raw, deletion_history);
+	if(grade > 90) {
+		$("#profile_grade").css("background-color", "rgb(102, 255, 102)");
+		$("#profile_grade").html("A+");
+	} else if(grade > 70) {
+		$("#profile_grade").css("background-color", "rgb(204, 255, 153)");
+		$("#profile_grade").html("A");
+	} else if(grade > 60) {
+		$("#profile_grade").css("background-color", "rgb(230, 230, 0)");
+		$("#profile_grade").html("B");
+	} else if(grade > 50) {
+		$("#profile_grade").css("background-color", "rgb(255, 204, 102)");
+		$("#profile_grade").html("C");
+	} else {
+		$("#profile_grade").css("background-color", "rgb(204, 41, 0)");
+		$("#profile_grade").html("D");
+	}
 </script>
 
 
