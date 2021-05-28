@@ -17,9 +17,9 @@ def find_peaks(history, metric):
 		py = f(max(xs[0], xs[i]-dt))
 		ny = f(min(xs[-1], xs[i]+dt))
 		y = ys[i]
-		log_py = math.log10(py)
-		log_ny = math.log10(ny)
-		log_y = math.log10(y)
+		log_py = math.log10(max(1,py))
+		log_ny = math.log10(max(1,ny))
+		log_y = math.log10(max(1,y))
 		
 		slope_p = (log_y - log_py) / (dt)
 		slope_n = (log_ny - log_y) / (dt)
