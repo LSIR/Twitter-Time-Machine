@@ -140,7 +140,7 @@ function tcMakeDailyBarchart(divID, raw_data) {
 		.setYAxisScaleDomain(SCALE_ZERO_MAX)
 		.setXLabel("")
 		.setYLabel("Number of tweets")
-		.build(530, 300);
+		.build(530, 430);
 }
 
 function tcMakeSourcesBarchart(divID, raw_data) {
@@ -287,4 +287,43 @@ function tcMakeLevenshteinChart(divID, data, names, screen_names, descriptions) 
 				.duration(200)		
 				.style("opacity", 0);	
 		})
+}
+
+function tcMakeProfileGradeChart(divID, subgrades_data) {
+
+	let data = [
+		{x: subgrades_data[0]*10, y: "Attributes change"},
+		{x: subgrades_data[1]*10, y: "Deletions"},
+		{x: subgrades_data[2]*2, y: "Follower rise"}
+	];
+
+	let builder = new TCChartBuilder(BAR_CHART);
+	let chart = builder
+		.setParentDiv($(divID))
+		.setData(data)
+		.setFilled(true)
+		.setMargin(10,60,90,10)
+		.setYAxisScale(BAND_SCALE)
+		.setYAxisScaleDomain(SCALE_MAP)
+		.setXAxisScale(LINEAR_SCALE)
+		.setXAxisScaleDomain(SCALE_ZERO_MAX)
+		.setYLabel("")
+		.setXLabel("Penalty")
+		.build(530, 300);
+}
+
+function tcMakeTypeChart(divID, data) {
+	let builder = new TCChartBuilder(BAR_CHART);
+	let chart = builder
+		.setParentDiv($(divID))
+		.setData(data)
+		.setFilled(true)
+		.setMargin(10,80,60,0)
+		.setXAxisScale(BAND_SCALE)
+		.setXAxisScaleDomain(SCALE_MAP)
+		.setYAxisScale(LINEAR_SCALE)
+		.setYAxisScaleDomain(SCALE_ZERO_MAX)
+		.setXLabel("")
+		.setYLabel("Number of tweets")
+		.build(530, 300);
 }

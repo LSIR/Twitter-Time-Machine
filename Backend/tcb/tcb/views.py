@@ -7,12 +7,15 @@ import pymongo
 from datetime import datetime
 import functools 
 from . import analysis
+from functools import reduce
+import re
 
 
 client = pymongo.MongoClient('mongodb://localhost:27017')
 database = client['trollcheck']
 bearer_token = "AAAAAAAAAAAAAAAAAAAAABkYNgEAAAAA9gybLao9r2LyuBNHAOGDlOOivS0%3DOF9mpuGxGjJTiF1T151P5XOKHg0sAnnj05TUBbHM3VZrkv9UaS"
 autocomplete_limit = 10
+user_tag_regex = re.compile(r'\@\w+')
 
 def home(request):
 	context = {
@@ -63,7 +66,29 @@ def user(request, usr_id):
 		print("Sorting History...")
 		user['history'] = sorted(user['history'], key=lambda x: x['ts'])
 		print("Done")
-		tweets_metadata = list(database.get_collection("tweets").find({"user_id": details['id']}, {'_id': False, 'text': False, 'user_id': False}))
+		tweets_metadata = list(database.get_collection("tweets").find({"user_id": details['id']}, {'_id': False, 'user_id': False}))
+
+		rt_count = 0
+		tw_count = 0
+		re_count = 0
+
+		related_users = {}
+		for t in tweets_metadata:
+			if 'text' in t:
+				txt = t["text"]
+				if txt.startswith("RT"):
+					rt_count += 1
+				elif txt.startswith("@"):
+					re_count += 1
+				else:
+					tw_count += 1
+				for usr in re.findall(user_tag_regex, txt):
+					if not usr in related_users:
+						related_users[usr] = 0
+					related_users[usr] += 1
+
+				del(t["text"]) #avoid transfering the text over the network
+		
 		(peaks, max_slope, avg_slope) = analysis.find_peaks(user['history'], 'followers_count')
 		context = {
 			'name': name,
@@ -86,7 +111,11 @@ def user(request, usr_id):
 			'screen_names': json.dumps(user['screen_names']),
 			'names': json.dumps(user['names']),
 			'descriptions': json.dumps(user['descriptions']),
-			'tweets_metadata': json.dumps(tweets_metadata)
+			'tweets_metadata': json.dumps(tweets_metadata),
+			'tw_cnt': tw_count,
+			'rt_cnt': rt_count,
+			're_cnt': re_count,
+			'related_users': json.dumps(related_users)
 		}
 		return render(request, 'user.html', context=context)
 

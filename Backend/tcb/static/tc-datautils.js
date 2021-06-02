@@ -60,12 +60,22 @@ function levenshteinDistance(str1, str2) {
 	return track[str2.length][str1.length];
 }
 
-function profileGrade(screen_name_history, name_history, description_history, metrics_history, deletion_history) {
+function profileSubgrades(screen_name_history, name_history, description_history, metrics_history, deletion_history, peaks) {
+	let subgrades = [];
+	subgrades.push(screen_name_history.reduce((p, c, idx, a) => p + levenshteinDistance(a[Math.max(0, idx-1)].screen_name, c.screen_name), 0)
+					+ name_history.reduce((p, c, idx, a) => p + levenshteinDistance(a[Math.max(0, idx-1)].name, c.name), 0) / 10
+					+ description_history.reduce((p, c, idx, a) => p + levenshteinDistance(a[Math.max(0, idx-1)].description, c.description), 0) / 1000);
+	subgrades.push(deletion_history.length / 20);
+	subgrades.push(peaks.length);
+	return subgrades;
+}
+
+function profileGrade(screen_name_history, name_history, description_history, metrics_history, deletion_history, peaks) {
 	//Grade = 100-(dist(screen_name))-(dist(name)/10)-(dist(description)/1000)-(#deletions/20)
 	let grade = 100;
-	grade -= screen_name_history.reduce((p, c, idx, a) => p + levenshteinDistance(a[Math.max(0, idx-1)].screen_name, c.screen_name), 0);
-	grade -= name_history.reduce((p, c, idx, a) => p + levenshteinDistance(a[Math.max(0, idx-1)].name, c.name), 0) / 10;
-	grade -= description_history.reduce((p, c, idx, a) => p + levenshteinDistance(a[Math.max(0, idx-1)].description, c.description), 0) / 1000;
-	grade -= deletion_history.length / 20;
+	let grades = profileSubgrades(screen_name_history, name_history, description_history, metrics_history, deletion_history, peaks);
+	grade -= grades[0];
+	grade -= grades[1];
+	grade -= grades[2];
 	return Math.max(0,grade);
 }

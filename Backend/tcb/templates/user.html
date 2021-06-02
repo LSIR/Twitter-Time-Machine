@@ -244,7 +244,10 @@
 				<div class="row bg-white pt-4">
 					<div class="col-6 px-4">
 						<h3>Profile Grade</h3>
-						<h1 class="offset-1" style="font-size: 10em;"><span class="badge" id="profile_grade"></span></h1>
+						<h1 style="font-size: 5em;"><span class="badge" id="profile_grade"></span></h1>
+						<div class="row">
+							<div class="col-12" id="grade_chart"></div>
+						</div>
 					</div>
 					<div class="col-6 px-4">
 						<h5>Daily rythm</h5>
@@ -252,6 +255,10 @@
 					</div>
 				</div>
 				<div class="row bg-white rounded-bottom">
+					<div class="col-6 px-4">
+						<h5>Types</h5>
+						<div class="col-12" id="types_chart"></div>
+					</div>
 					<div class="col-6 px-4">
 						<h5>Sources</h5>
 						<div class="col-12" id="sources_chart"></div>
@@ -350,7 +357,7 @@
 <script>
 	let history_raw = JSON.parse("{{ history |escapejs}}")
 	let tweets_metadata = JSON.parse("{{tweets_metadata|escapejs}}")
-	tcMakeHistoryChart('#followers_chart', history_raw, 'followers_count', {{ peaks }}, function (d) {
+	tcMakeHistoryChart('#followers_chart', history_raw, 'followers_count', {{ peaks|escapejs }}, function (d) {
 		$.ajax("/tweets/{{ username }}?ts=" + (d.x / 1000)).done(function (res) {
 			let tweetModal = new bootstrap.Modal(document.getElementById('tweetModal'))
 			let nh = ""
@@ -448,9 +455,9 @@
 	
 	$("#deleted_title").html("This user has deleted "+deletion_count+" tweets");
 
-	let grade = profileGrade(screen_name_history, name_history, description_history, history_raw, deletion_history);
+	let grade = profileGrade(screen_name_history, name_history, description_history, history_raw, deletion_history, {{ peaks|escapejs }});
 	if(grade > 90) {
-		$("#profile_grade").css("background-color", "rgb(102, 255, 102)");
+		$("#profile_grade").css("background-color", "rgb(102, 255, 142)");
 		$("#profile_grade").html("A+");
 	} else if(grade > 70) {
 		$("#profile_grade").css("background-color", "rgb(204, 255, 153)");
@@ -465,6 +472,12 @@
 		$("#profile_grade").css("background-color", "rgb(204, 41, 0)");
 		$("#profile_grade").html("D");
 	}
+	let subgrades = profileSubgrades(screen_name_history, name_history, description_history, history_raw, deletion_history, {{ peaks|escapejs }});
+	tcMakeProfileGradeChart("#grade_chart", subgrades);
+	let types = [{x: "Tweets", y: {{ tw_cnt}}},
+					{x: "Retweets", y: {{ rt_cnt}}},
+					{x: "Replies", y: {{ re_cnt}}}];
+	tcMakeTypeChart("#types_chart", types)
 </script>
 
 
