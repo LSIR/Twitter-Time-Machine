@@ -93,7 +93,7 @@ def user(request, usr_id):
 						hashtags[h] = 0
 					hashtags[h] += 1
 
-				del(t["text"]) #avoid transfering the text over the network
+				#del(t["text"]) #avoid transfering the text over the network
 		
 		(peaks, max_slope, avg_slope) = analysis.find_peaks(user['history'], 'followers_count')
 

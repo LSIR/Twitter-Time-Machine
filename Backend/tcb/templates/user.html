@@ -319,6 +319,10 @@
 				<div class="row bg-white rounded pb-3" id="statuses_chart_row">
 					<h3>Tweet Count over Time</h3>
 					<div class="col-8" style="height: 500px" id="statuses_chart"></div>
+					<div class="col-4">
+						<h5>Most viral tweets</h5>
+						<div id="most_viral_tweets" style="max-height: 500px; overflow: scroll"></div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -327,6 +331,10 @@
 				<div class="row bg-white rounded-bottom pb-3" id="favorites_chart_row">
 					<h3>Favourite Count over Time</h3>
 					<div class="col-8" style="height: 500px" id="favorites_chart"></div>
+					<div class="col-4">
+						<h5>Most favorited tweets</h5>
+						<div id="most_fav_tweets" style="max-height: 500px; overflow: scroll"></div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -369,17 +377,24 @@
 <script src="{% static 'd3-chart-builder.js' %}"></script>
 <script src="{% static 'tc-chart.js' %}"></script>
 <script>
-	let history_raw = {{ history |safe}}
-	let tweets_metadata = {{tweets_metadata |safe}}
+	let history_raw = {{ history|safe}}
+	let tweets_metadata = {{tweets_metadata|safe}}
 	let hashtag = {{hashtags|safe}}
 	let related_users = {{related_users|safe}}
+
+	let most_viral = topK(tweets_metadata, 100, (a,b) => b.retweet_count+b.favorite_count-a.retweet_count-a.favorite_count)
+	let most_fav = topK(tweets_metadata, 100, (a,b) => b.favorite_count-a.favorite_count)
+
+	$("#most_viral_tweets").html(most_viral.reduce((acc, val) => acc + makeTweetCard(val), ''))
+	$("#most_fav_tweets").html(most_fav.reduce((acc, val) => acc + makeTweetCard(val), ''))
+
 	$("#related_users").html(related_users.reduce(function(acc, val) {
 		return acc+ '<li class="list-group-item">'+val[0]+' ('+val[1]+')</li>'
 	}, ''))
 	$("#hashtag").html(hashtag.reduce(function(acc, val) {
 		return acc+ '<li class="list-group-item">'+val[0]+' ('+val[1]+')</li>'
 	}, ''))
-	tcMakeHistoryChart('#followers_chart', history_raw, 'followers_count', {{ peaks |safe }}, function (d) {
+	tcMakeHistoryChart('#followers_chart', history_raw, 'followers_count', {{ peaks|safe }}, function (d) {
 		$.ajax("/tweets/{{ username }}?ts=" + (d.x / 1000)).done(function (res) {
 			let tweetModal = new bootstrap.Modal(document.getElementById('tweetModal'))
 			let nh = ""

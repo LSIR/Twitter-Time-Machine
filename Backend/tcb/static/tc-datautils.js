@@ -79,3 +79,45 @@ function profileGrade(screen_name_history, name_history, description_history, me
 	grade -= grades[2];
 	return Math.max(0,grade);
 }
+
+function topK(array, k, cmp) {
+	if(array.length <= k) {
+		let cpy = [...array]
+		cpy.sort(cmp);
+		return cpy;
+	}
+	let top = []
+	let lastIdx = 0;
+	let addedIdx = {}
+	for(let i = 0; i < k; i++) {
+		array.forEach(function(e, idx) {
+			if(!(idx in addedIdx) && cmp(array[lastIdx], e) >= 0) {
+				lastIdx = idx;
+			}
+		})
+		addedIdx[lastIdx] = 1;
+		top.push(array[lastIdx]);
+		lastIdx = 0
+		while(lastIdx in addedIdx) {
+			lastIdx++;
+		}
+	}
+	return top;
+}
+
+function makeTweetCard(e) {
+	let nh = ""
+	let rts = (e.retweet_count !== undefined ? e.retweet_count : '?') + ' <i class="bi bi-arrow-left-right"></i> '
+	let quotes = (e.quote_count !== undefined ? e.quote_count : '?') + ' <i class="bi bi-chat-left-quote"></i> '
+	let favs = (e.favorite_count !== undefined ? e.favorite_count : '?') + ' <i class="bi bi-heart"></i>'
+
+	let date = new Date(e.ts * 1000)
+	nh += '<div class="card mb-1">\
+				<div class="card-body">\
+					<h6 class="card-title">'+ rts + quotes + favs + '</h6>\
+					<h6 class="card-subtitle mb-2 text-muted">'+ date + '</h6>\
+					<p class="card-text">'+ e.text + '</p>\
+				</div>\
+			</div>';
+	return nh;
+}
