@@ -254,6 +254,20 @@
 						<div class="col-12" id="daily_chart"></div>
 					</div>
 				</div>
+				<div class="row bg-white pt-4">
+					<div class="col-6 px-4">
+						<h5>Related Users</h5>
+						<ul class="list-group list-group-flush" id="related_users" style="max-height: 300px; overflow:scroll">
+							
+						</ul>
+					</div>
+					<div class="col-6 px-4">
+						<h5>Used Hashtags</h5>
+						<ul class="list-group list-group-flush" id="hashtag" style="max-height: 300px; overflow:scroll">
+							
+						</ul>
+					</div>
+				</div>
 				<div class="row bg-white rounded-bottom">
 					<div class="col-6 px-4">
 						<h5>Types</h5>
@@ -356,8 +370,16 @@
 <script src="{% static 'tc-chart.js' %}"></script>
 <script>
 	let history_raw = JSON.parse("{{ history |escapejs}}")
-	let tweets_metadata = JSON.parse("{{tweets_metadata|escapejs}}")
-	tcMakeHistoryChart('#followers_chart', history_raw, 'followers_count', {{ peaks|escapejs }}, function (d) {
+	let tweets_metadata = JSON.parse("{{tweets_metadata |escapejs}}")
+	let hashtag = JSON.parse("{{hashtags|escapejs}}")
+	let related_users = JSON.parse("{{related_users|escapejs}}")
+	$("#related_users").html(related_users.reduce(function(acc, val) {
+		return acc+ '<li class="list-group-item">'+val[0]+' ('+val[1]+')</li>'
+	}, ''))
+	$("#hashtag").html(hashtag.reduce(function(acc, val) {
+		return acc+ '<li class="list-group-item">'+val[0]+' ('+val[1]+')</li>'
+	}, ''))
+	tcMakeHistoryChart('#followers_chart', history_raw, 'followers_count', {{ peaks |escapejs }}, function (d) {
 		$.ajax("/tweets/{{ username }}?ts=" + (d.x / 1000)).done(function (res) {
 			let tweetModal = new bootstrap.Modal(document.getElementById('tweetModal'))
 			let nh = ""

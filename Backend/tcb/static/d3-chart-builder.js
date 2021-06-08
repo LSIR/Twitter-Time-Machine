@@ -26,6 +26,7 @@ class TCChart {
 	constructor(parentDiv, width, height ,margin, xScale, yScale, data, generators, dotted, hover_evt, out_evt, click_evt, internalBuilder, highlighted_pts, xlabel, ylabel) {
 		this.hover_evt = hover_evt;
 		this.out_evt = out_evt;
+		this.click_evt = click_evt;
 		this.width = width;
 		this.height = height;
 		this.margin = margin;
@@ -408,7 +409,6 @@ class TCInternalBarChartBuilder {
 
 	build(xScale, yScale, width, height) {
 		let create = function(self) {
-			console.log(self.data)
 			if(self.xScale.bandwidth != undefined) {
 				self.svg.selectAll("bar")
 					.data(self.data)

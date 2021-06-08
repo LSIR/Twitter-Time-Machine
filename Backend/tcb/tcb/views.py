@@ -16,6 +16,7 @@ database = client['trollcheck']
 bearer_token = "AAAAAAAAAAAAAAAAAAAAABkYNgEAAAAA9gybLao9r2LyuBNHAOGDlOOivS0%3DOF9mpuGxGjJTiF1T151P5XOKHg0sAnnj05TUBbHM3VZrkv9UaS"
 autocomplete_limit = 10
 user_tag_regex = re.compile(r'\@\w+')
+hash_tag_regex = re.compile(r'\#\w+')
 
 def home(request):
 	context = {
@@ -73,6 +74,7 @@ def user(request, usr_id):
 		re_count = 0
 
 		related_users = {}
+		hashtags = {}
 		for t in tweets_metadata:
 			if 'text' in t:
 				txt = t["text"]
@@ -86,10 +88,17 @@ def user(request, usr_id):
 					if not usr in related_users:
 						related_users[usr] = 0
 					related_users[usr] += 1
+				for h in re.findall(hash_tag_regex, txt):
+					if not h in hashtags:
+						hashtags[h] = 0
+					hashtags[h] += 1
 
 				del(t["text"]) #avoid transfering the text over the network
 		
 		(peaks, max_slope, avg_slope) = analysis.find_peaks(user['history'], 'followers_count')
+
+		hashtags = list(sorted(hashtags.items(), key=lambda item: item[1], reverse=True))
+		related_users = list(sorted(related_users.items(), key=lambda item: item[1], reverse=True))
 		context = {
 			'name': name,
 			'username': screen_name,
@@ -115,7 +124,8 @@ def user(request, usr_id):
 			'tw_cnt': tw_count,
 			'rt_cnt': rt_count,
 			're_cnt': re_count,
-			'related_users': json.dumps(related_users)
+			'related_users': json.dumps(related_users),
+			'hashtags': json.dumps(hashtags)
 		}
 		return render(request, 'user.html', context=context)
 

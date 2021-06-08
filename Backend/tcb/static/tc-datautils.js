@@ -71,7 +71,7 @@ function profileSubgrades(screen_name_history, name_history, description_history
 }
 
 function profileGrade(screen_name_history, name_history, description_history, metrics_history, deletion_history, peaks) {
-	//Grade = 100-(dist(screen_name))-(dist(name)/10)-(dist(description)/1000)-(#deletions/20)
+	//Grade = 100-(dist(screen_name))-(dist(name)/10)-(dist(description)/1000)-(#deletions/20)-#peaks
 	let grade = 100;
 	let grades = profileSubgrades(screen_name_history, name_history, description_history, metrics_history, deletion_history, peaks);
 	grade -= grades[0];
