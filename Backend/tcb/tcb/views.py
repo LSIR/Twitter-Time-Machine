@@ -26,7 +26,10 @@ def home(request):
 	return render(request, 'index.html', context=context)
 
 def user(request, usr_id):
-	user = database.get_collection("users").find_one({ "_id": usr_id.lower() })
+	if usr_id[0] == "*":
+		user = database.get_collection("users").find_one({ "details.id": int(usr_id[1:]) })
+	else:
+		user = database.get_collection("users").find_one({ "_id": usr_id.lower() })
 	if not user is None:
 		details = user['details']
 
