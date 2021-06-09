@@ -134,10 +134,20 @@ class TCChart {
 		this.xScale.range([0, this.width]);
 		this.yScale.range([this.height, 0]);
 		
-		this.yAxis
-			.transition()
-			.duration(500)
-			.call(d3.axisLeft(this.yScale).ticks(5))
+		if(log && axis=='y') {
+			this.yAxis
+				.transition()
+				.duration(500)
+				.call(d3.axisLeft(this.yScale)
+				.tickFormat(function (d) {
+					return _scale.tickFormat(4,d3.format(",d"))(d)
+				}))
+		} else {
+			this.yAxis
+				.transition()
+				.duration(500)
+				.call(d3.axisLeft(this.yScale).ticks(5))
+		}
 		this.xAxis
 			.transition()
 			.duration(500)

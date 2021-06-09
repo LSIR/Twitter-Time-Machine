@@ -105,17 +105,17 @@ function topK(array, k, cmp) {
 	return top;
 }
 
-function makeTweetCard(e) {
+function makeTweetCard(e, hideDate) {
 	let nh = ""
 	let rts = (e.retweet_count !== undefined ? e.retweet_count : '?') + ' <i class="bi bi-arrow-left-right"></i> '
 	let quotes = (e.quote_count !== undefined ? e.quote_count : '?') + ' <i class="bi bi-chat-left-quote"></i> '
 	let favs = (e.favorite_count !== undefined ? e.favorite_count : '?') + ' <i class="bi bi-heart"></i>'
 
 	let date = new Date(e.ts * 1000)
-	nh += '<div class="card mb-1">\
+	nh += '<div class="card mb-1" style="color:black;text-align:left">\
 				<div class="card-body">\
 					<h6 class="card-title">'+ rts + quotes + favs + '</h6>\
-					<h6 class="card-subtitle mb-2 text-muted">'+ date + '</h6>\
+					<h6 class="card-subtitle mb-2 text-muted">'+ (hideDate?"":date) + '</h6>\
 					<p class="card-text">'+ e.text + '</p>\
 				</div>\
 			</div>';

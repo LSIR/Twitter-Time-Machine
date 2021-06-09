@@ -85,10 +85,8 @@ function tcMakeHistoryChart(divID, raw_data, metric, highlighted_points, click_f
 	$('#logscale_'+safeDivID).on('click', function() {
 		if($('#logscale_'+safeDivID).prop('checked')) {
 			chart.setLogscale('y', true, SCALE_EXTENT);
-			//chart.updateData(history.map(e => ({y: Math.log10(e.y), x: e.x})), SCALE_EXTENT, SCALE_ZERO_MAX, MAX_DATAPOINTS);
 		} else {
 			chart.setLogscale('y', false, SCALE_EXTENT);
-			//chart.updateData(history, SCALE_EXTENT, SCALE_ZERO_MAX, MAX_DATAPOINTS);
 		}
 	});
 
@@ -140,7 +138,7 @@ function tcMakeDailyBarchart(divID, raw_data) {
 		.setYAxisScaleDomain(SCALE_ZERO_MAX)
 		.setXLabel("")
 		.setYLabel("Number of tweets")
-		.build(530, 430);
+		.build(530, 380);
 }
 
 function tcMakeSourcesBarchart(divID, raw_data) {
@@ -309,7 +307,7 @@ function tcMakeProfileGradeChart(divID, subgrades_data) {
 		.setXAxisScaleDomain(SCALE_ZERO_MAX)
 		.setYLabel("")
 		.setXLabel("Penalty")
-		.build(530, 300);
+		.build(530, 250);
 }
 
 function tcMakeTypeChart(divID, data) {

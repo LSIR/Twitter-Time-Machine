@@ -38,18 +38,7 @@
 			tweets = tweets.sort((a, b) => a.ts - b.ts)
 		}
 		tweets.forEach(function (e) {
-			let rts = (e.retweet_count !== undefined ? e.retweet_count : '?') + ' <i class="bi bi-arrow-left-right"></i> '
-			let quotes = (e.quote_count !== undefined ? e.quote_count : '?') + ' <i class="bi bi-chat-left-quote"></i> '
-			let favs = (e.favorite_count !== undefined ? e.favorite_count : '?') + ' <i class="bi bi-heart"></i>'
-
-			let date = new Date(e.ts * 1000)
-			nh += '<div class="card mb-1">\
-						<div class="card-body">\
-							<h6 class="card-title">'+ rts + quotes + favs + '</h6>\
-							<h6 class="card-subtitle mb-2 text-muted">'+ date + '</h6>\
-							<p class="card-text">'+ e.text + '</p>\
-						</div>\
-					</div>'
+			nh += makeTweetCard(e)
 		})
 		$("#tweetModalBody").html(nh)
 		if (show) {
@@ -482,16 +471,18 @@
 	tweets_metadata.forEach(function(e) {
 		if(e.deleted && e['ts'] != undefined) {
 			deletion_count += 1;
-			let text = tweets_metadata.filter(x => x.id == e.id && !x.deleted && 'text' in x)
-			if(text.length > 0) {
-				text = text[0].text
+			let ot = tweets_metadata.filter(x => x.id == e.id && !x.deleted && 'text' in x)
+			let text = "?"
+			if(ot.length > 0) {
+				ot = ot[0]
+				text = ot.text
 			}
-			deletion_history.push({details: {deletions: deletion_count, text: text}, ts: e.ts/1000})
+			deletion_history.push({details: {deletions: deletion_count}, retweet_count: ot.retweet_count, quote_count: ot.quote_count, favorite_count: ot.favorite_count, text: text, ts: e.ts/1000})
 		}
 	})
 	
 	if(deletion_history.length > 0) {
-		tcMakeHistoryChart('#deletion_chart', deletion_history, 'deletions', [], function(d) {}, "Number of deleted tweets", e=>'<div style="text-align:left;background-color:white;color:black">'+deletion_history.filter(x => x.details.deletions == e.y)[0].details.text+'</div>');
+		tcMakeHistoryChart('#deletion_chart', deletion_history, 'deletions', [], function(d) {}, "Number of deleted tweets", e=>makeTweetCard(deletion_history.filter(x => x.details.deletions == e.y)[0], true));
 	}
 	
 	$("#deleted_title").html("This user has deleted "+deletion_count+" tweets");
