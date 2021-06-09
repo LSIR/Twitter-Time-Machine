@@ -24,5 +24,7 @@ urlpatterns = [
     path('autocomplete/<str:username>', views.autocomplete),
     path('user/<str:usr_id>', views.user, name='user'),
     path('admin/', admin.site.urls),
-    path('tweets/<str:usr_id>', views.tweets)
+    path('tweets/<str:usr_id>', views.tweets),
+    path('data/user/<str:usr_id>', views.user_data),
+    path('data/tweets/<str:usr_id>', views.tweet_data)
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

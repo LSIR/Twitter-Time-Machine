@@ -93,6 +93,9 @@
 					<div class="col-12">
 						<i class="bi bi-calendar-event" rel="tooltip" title="Account creation"></i> {{ created_at }}
 					</div>
+					<div class="col-12 mt-2">
+						<button class="btn btn-outline-success" id="export_data">Export Data</button>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -510,6 +513,22 @@
 					{x: "Retweets", y: {{ rt_cnt}}},
 					{x: "Replies", y: {{ re_cnt}}}];
 	tcMakeTypeChart("#types_chart", types)
+
+	$("#export_data").on('click', function() {
+		$.get("/data/user/{{username}}", function(data) {
+			var a = document.createElement("a")
+			a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], {type: "application/json"}))
+			a.download = "{{username}}_user_data.json"
+			a.click()
+		})
+		$.get("/data/tweets/{{username}}", function(data) {
+			var a = document.createElement("a")
+			a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], {type: "application/json"}))
+			a.download = "{{username}}_tweets_data.json"
+			a.click()
+		})
+	})
+	
 </script>
 
 

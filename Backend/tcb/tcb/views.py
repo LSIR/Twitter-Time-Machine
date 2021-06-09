@@ -155,3 +155,16 @@ def autocomplete(request, username):
 	users = database.get_collection("users").find({ "_id": {"$regex": "^" + username + ".*"}}, {"_id":1}).sort([("details.followers_count", -1)]).limit(autocomplete_limit)
 
 	return JsonResponse(list(users), safe=False)
+
+def user_data(request, usr_id):
+	return JsonResponse(database.get_collection("users").find_one({ "_id": usr_id.lower() }))
+
+def tweet_data(request, usr_id):
+	user = database.get_collection("users").find_one({ "_id": usr_id.lower() })
+	if not user is None:
+		uuid = user['details']['id']
+		print(uuid)
+		tweets = database.get_collection('tweets').find({'user_id': uuid})
+		tweets_no_id = list(map(lambda x: {i:x[i] for i in x if i!='_id'}, tweets))
+		return JsonResponse(tweets_no_id, safe=False)
+	return JsonResponse([])
