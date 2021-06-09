@@ -472,7 +472,7 @@
 		if(e.deleted && e['ts'] != undefined) {
 			deletion_count += 1;
 			let ot = tweets_metadata.filter(x => x.id == e.id && !x.deleted && 'text' in x)
-			let text = "?"
+			let text = "[Unknown tweet text]"
 			if(ot.length > 0) {
 				ot = ot[0]
 				text = ot.text
