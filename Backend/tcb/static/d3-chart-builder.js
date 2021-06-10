@@ -20,10 +20,12 @@ const formatTime = d3.timeFormat("%e %B %Y");
 const TWITTER_COLOR = '#1DA1F2';
 const DOT_COLOR = '#14171A';
 
+const Y_LABEL_MARGIN = 20
+
 class TCChart {
 
 
-	constructor(parentDiv, width, height ,margin, xScale, yScale, data, generators, dotted, hover_evt, out_evt, click_evt, internalBuilder, highlighted_pts, xlabel, ylabel) {
+	constructor(parentDiv, width, height, margin, xScale, yScale, data, generators, dotted, hover_evt, out_evt, click_evt, internalBuilder, highlighted_pts, xlabel, ylabel) {
 		this.hover_evt = hover_evt;
 		this.out_evt = out_evt;
 		this.click_evt = click_evt;
@@ -40,13 +42,13 @@ class TCChart {
 		this.svg = d3.select('#'+parentDiv.attr('id'))
 			.append("div")
 			.classed("svg-container", true)
-			.style("padding-bottom", ((height+margin.bottom+margin.top)/(width+margin.left+margin.right)*100)+"%")
+			.style("padding-bottom", ((height+margin.bottom+margin.top + 5)/(width+margin.left+margin.right)*100)+"%") // + 5 to leave space for the Time label
 			.append("svg")
 			.attr("preserveAspectRatio", "xMinYMin meet")
-			.attr("viewBox", "0 0 "+(width+margin.left+margin.right)+" "+(height+margin.bottom+margin.top))
+			.attr("viewBox", "0 0 "+(width+margin.left+margin.right + Y_LABEL_MARGIN*2)+" "+(height+margin.bottom+margin.top))
 			.classed("svg-content-responsive", true)
 			.append("g")
-			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+			.attr("transform", "translate(" + (margin.left + Y_LABEL_MARGIN) + "," + margin.top + ")");
 
 
 
@@ -87,7 +89,7 @@ class TCChart {
 		//text label for the y axis
 		this.svg.append("text")
 			.attr("transform", "rotate(-90)")
-			.attr("y", 0 - margin.left)
+			.attr("y", 0 - margin.left - Y_LABEL_MARGIN)
 			.attr("x",0 - (height / 2))
 			.attr("dy", "1em")
 			.style("text-anchor", "middle")
