@@ -9,7 +9,7 @@ function distanceLinePoint(line_p1, line_p2, p) {
 
 function triangeArea(line_p1, line_p2, p) {
 	//https://www.mathopenref.com/coordtrianglearea.html
-	return Math.abs(line_p1['x']*(line_p2['y']-p['y']) + line_p2['x']*(p['y']-line_p1['y']) + p['x']*(line_p1['y']-line_p2['y'])) / 2 + (line_p1['x'] - p['x']);
+	return Math.abs(line_p1['x']*(line_p2['y']-p['y']) + line_p2['x']*(p['y']-line_p1['y']) + p['x']*(line_p1['y']-line_p2['y'])) / 2 + (line_p2['x'] - line_p1['x']);
 }
 
 function optimizePoints(data, max, peaks) {
