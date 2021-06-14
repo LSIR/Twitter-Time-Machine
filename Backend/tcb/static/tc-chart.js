@@ -105,16 +105,12 @@ function tcMakeHistoryChart(divID, raw_data, metric, highlighted_points, click_f
 	$('#end'+safeDivID).on('change', function() {
 		let endDate = new Date($('#end'+safeDivID).val()).getTime();
 		let nd = history.filter(e => e.x <= endDate);
-		updateChart(nd);
+		
 	})
 	$('#optimize_'+safeDivID).on('change', function() {
 		let startDate = new Date($('#start'+safeDivID).val()).getTime();
 		let endDate = new Date($('#end'+safeDivID).val()).getTime();
-		if($('#optimize_'+safeDivID).prop('checked')) {
-			updateChart(history.filter(e => e.x >= startDate && e.x <= endDate))
-		} else {
-			updateChart(history)
-		}
+		updateChart(history.filter(e => e.x >= startDate && e.x <= endDate))
 	})
 }
 
