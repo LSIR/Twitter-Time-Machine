@@ -36,7 +36,7 @@ def find_peaks(history, metric):
 	peaks_ts = []
 	while True:
 		j = np.argmax(deltas)			
-		if deltas[j] < 0.3 * max_delta or deltas[j] < 0.02:
+		if deltas[j] < 0.3 * max_delta or deltas[j] < 0.00:
 			break
 		deltas[j] = 0
 		c = len(list(filter(lambda x: (xs[j+1] >= x - dt and xs[j+1] <= x + dt), peaks_ts)))

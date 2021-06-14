@@ -30,7 +30,7 @@ function tcMakeHistoryChart(divID, raw_data, metric, highlighted_points, click_f
     	.style("opacity", 0);
 	let chart = builder
 		.setParentDiv($(divID))
-		.setData(optimizePoints(history, MAX_DATAPOINTS, []))
+		.setData(optimizePoints(history, MAX_DATAPOINTS, highlighted_points))
 		.setFilled(true)
 		.setMargin(40,40,60,0)
 		.setXAxisScale(TIME_SCALE)
@@ -92,9 +92,9 @@ function tcMakeHistoryChart(divID, raw_data, metric, highlighted_points, click_f
 
 	function updateChart(data) {
 		if($('#optimize_'+safeDivID).prop('checked')) {
-			data = optimizePoints(data, MAX_DATAPOINTS, []);
+			data = optimizePoints(data, MAX_DATAPOINTS, highlighted_points);
 		}
-		chart.updateData(data, SCALE_EXTENT, SCALE_EXTENT, MAX_DATAPOINTS);
+		chart.updateData(data, SCALE_EXTENT, SCALE_EXTENT, 0);
 	}
 
 	$('#start'+safeDivID).on('change', function() {
