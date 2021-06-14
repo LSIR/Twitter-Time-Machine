@@ -105,7 +105,7 @@ function tcMakeHistoryChart(divID, raw_data, metric, highlighted_points, click_f
 	$('#end'+safeDivID).on('change', function() {
 		let endDate = new Date($('#end'+safeDivID).val()).getTime();
 		let nd = history.filter(e => e.x <= endDate);
-		
+		updateChart(nd);
 	})
 	$('#optimize_'+safeDivID).on('change', function() {
 		let startDate = new Date($('#start'+safeDivID).val()).getTime();
