@@ -10,10 +10,16 @@ from . import analysis
 from functools import reduce
 import re
 
+token = 0
+try:
+	from .config import *
+	token = bearer_token
+except:
+	print("No token available for Twitter API, are you sure that you created the config.py file containing bearer_token ?")
+
 
 client = pymongo.MongoClient('mongodb://localhost:27017')
 database = client['trollcheck']
-bearer_token = "AAAAAAAAAAAAAAAAAAAAABkYNgEAAAAA9gybLao9r2LyuBNHAOGDlOOivS0%3DOF9mpuGxGjJTiF1T151P5XOKHg0sAnnj05TUBbHM3VZrkv9UaS"
 autocomplete_limit = 10
 user_tag_regex = re.compile(r'\@\w+')
 hash_tag_regex = re.compile(r'\#\w+')
@@ -46,7 +52,7 @@ def user(request, usr_id):
 		url = details['url']
 
 		# Get updated informations from twitter API
-		headers = {"Authorization": "Bearer {}".format(bearer_token)}
+		headers = {"Authorization": "Bearer {}".format(token)}
 		url = "https://api.twitter.com/1.1/users/show.json?user_id={}".format(details["id"])
 		user_request =  requests.request("GET", url, headers=headers)
 
