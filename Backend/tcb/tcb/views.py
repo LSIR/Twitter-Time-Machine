@@ -94,6 +94,7 @@ def user(request, usr_id):
 				else:
 					tw_count += 1
 				for usr in re.findall(user_tag_regex, txt):
+					usr = usr.lower()
 					if not usr in related_users:
 						related_users[usr] = 0
 					related_users[usr] += 1
