@@ -386,7 +386,7 @@
 		return acc+ '<li class="list-group-item">'+val[0]+' ('+val[1]+')</li>'
 	}, ''))
 	tcMakeHistoryChart('#followers_chart', history_raw, 'followers_count', {{ peaks|safe }}, function (d) {
-		$.ajax("/tweets/{{ username }}?ts=" + (d.x / 1000)).done(function (res) {
+		/*$.ajax("/tweets/{{ username }}?ts=" + (d.x / 1000)).done(function (res) {
 			let tweetModal = new bootstrap.Modal(document.getElementById('tweetModal'))
 			let nh = ""
 			res.forEach(function (e) {
@@ -398,11 +398,18 @@
 								</div>\
 							</div>'
 			})
-			$("#tweetModalBody").html(nh)
-			tweets = res;
-			sort_tweets(false);
-			tweetModal.show()
+			
 		})
+		*/
+		let nh = ""
+		let tweetModal = new bootstrap.Modal(document.getElementById('tweetModal'))
+
+		res = tweets_metadata.filter(x => x.ts <= (d.x / 1000) + (4*24*60*60) && x.ts >= (d.x / 1000) - (4*24*60*60))
+		res.forEach(x => nh += makeTweetCard(x))
+		$("#tweetModalBody").html(nh)
+		tweets = res;
+		sort_tweets(false);
+		tweetModal.show()
 	},
 		"Followers", e => "")
 	tcMakeHistoryChart('#statuses_chart', history_raw, 'statuses_count', [], function (d) { }, "Tweets", e => "")
