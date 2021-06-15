@@ -9,6 +9,7 @@ import functools
 from . import analysis
 from functools import reduce
 import re
+import pandas as pd
 
 token = 0
 try:
@@ -77,6 +78,14 @@ def user(request, usr_id):
 		user['history'] = sorted(user['history'], key=lambda x: x['ts'])
 		print("Done")
 		tweets_metadata = list(database.get_collection("tweets").find({"user_id": details['id']}, {'_id': False, 'user_id': False}))
+
+		# Remove duplicate tweets
+		tweets_metadata = pd.DataFrame(tweets_metadata)
+		temp_tweets = tweets_metadata.copy().groupby("text").last().reset_index().drop(columns=["ts"])
+		timestamps = tweets_metadata.copy()[["text", "ts"]].groupby("text").first().reset_index()
+		tweets_metadata = temp_tweets.merge(timestamps, on="text")
+		
+		tweets_metadata = tweets_metadata.to_dict('records')
 
 		rt_count = 0
 		tw_count = 0
