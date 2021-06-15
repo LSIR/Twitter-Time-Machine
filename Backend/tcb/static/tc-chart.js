@@ -97,20 +97,21 @@ function tcMakeHistoryChart(divID, raw_data, metric, highlighted_points, click_f
 		chart.updateData(data, SCALE_EXTENT, SCALE_EXTENT, 0);
 	}
 
-	$('#start'+safeDivID).on('change', function() {
+	function dateFilter(data) {
 		let startDate = new Date($('#start'+safeDivID).val()).getTime();
-		let nd = history.filter(e => e.x >= startDate);
-		updateChart(nd);
+		let endDate = new Date($('#end'+safeDivID).val()).getTime();
+		let nd = history.filter(e => e.x >= startDate && e.x <= endDate);
+		return nd;
+	}
+
+	$('#start'+safeDivID).on('change', function() {
+		updateChart(dateFilter(history));
 	})
 	$('#end'+safeDivID).on('change', function() {
-		let endDate = new Date($('#end'+safeDivID).val()).getTime();
-		let nd = history.filter(e => e.x <= endDate);
-		updateChart(nd);
+		updateChart(dateFilter(history));
 	})
 	$('#optimize_'+safeDivID).on('change', function() {
-		let startDate = new Date($('#start'+safeDivID).val()).getTime();
-		let endDate = new Date($('#end'+safeDivID).val()).getTime();
-		updateChart(history.filter(e => e.x >= startDate && e.x <= endDate))
+		updateChart(dateFilter(history));
 	})
 }
 
