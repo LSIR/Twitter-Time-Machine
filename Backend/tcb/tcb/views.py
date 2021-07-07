@@ -20,7 +20,7 @@ except:
 
 
 client = pymongo.MongoClient('mongodb://localhost:27017')
-database = client['trollcheck']
+database = client['ttm']
 autocomplete_limit = 10
 user_tag_regex = re.compile(r'\@\w+')
 hash_tag_regex = re.compile(r'\#\w+')
