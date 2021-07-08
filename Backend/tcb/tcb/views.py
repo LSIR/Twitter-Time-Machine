@@ -20,9 +20,11 @@ except:
 
 
 client = pymongo.MongoClient('mongodb://localhost:27017')
-database = client['ttm']
+database = client['trollcheck']
 autocomplete_limit = 10
-user_tag_regex = re.compile(r'\@\w+')
+
+retweeted_tag_regex = re.compile(r'RT \@\w+')
+related_tag_regex = re.compile(r'\@\w+')
 hash_tag_regex = re.compile(r'\#\w+')
 
 def home(request):
@@ -51,6 +53,7 @@ def user(request, usr_id):
 		bio = details['description']
 		pp_url = details['img'].replace("_normal", "")
 		url = details['url']
+		banned = False
 
 		# Get updated informations from twitter API
 		headers = {"Authorization": "Bearer {}".format(token)}
@@ -72,6 +75,7 @@ def user(request, usr_id):
 			pp_url = user_infos['profile_image_url_https'].replace("_normal", "")
 			url = user_infos['url']
 		else:
+			banned = True
 			print("Twitter API user info request error: code {}".format(user_request.status_code))
 
 		print("Sorting History...")
@@ -91,6 +95,7 @@ def user(request, usr_id):
 		tw_count = 0
 		re_count = 0
 
+		retweeted_users = {}
 		related_users = {}
 		hashtags = {}
 		for t in tweets_metadata:
@@ -102,11 +107,19 @@ def user(request, usr_id):
 					re_count += 1
 				else:
 					tw_count += 1
-				for usr in re.findall(user_tag_regex, txt):
+				# First add users in retweeted
+				for usr in re.findall(retweeted_tag_regex, txt):
+					usr = usr.lower()[3:] # to remove rt from the text
+					if not usr in retweeted_users:
+						retweeted_users[usr] = 0
+					retweeted_users[usr] += 1
+				# Then add in related if not retweeted
+				for usr in re.findall(related_tag_regex, txt):
 					usr = usr.lower()
-					if not usr in related_users:
+					if not usr in related_users and not usr in retweeted_users:
 						related_users[usr] = 0
-					related_users[usr] += 1
+					if not usr in retweeted_users:
+						related_users[usr] += 1
 				for h in re.findall(hash_tag_regex, txt):
 					if not h in hashtags:
 						hashtags[h] = 0
@@ -114,10 +127,13 @@ def user(request, usr_id):
 
 				#del(t["text"]) #avoid transfering the text over the network
 		
+		print(retweeted_users)
+		
 		(peaks, max_slope, avg_slope) = analysis.find_peaks(user['history'], 'followers_count')
 
 		hashtags = list(sorted(hashtags.items(), key=lambda item: item[1], reverse=True))
 		related_users = list(sorted(related_users.items(), key=lambda item: item[1], reverse=True))
+		retweeted_users = list(sorted(retweeted_users.items(), key=lambda item: item[1], reverse=True))
 		context = {
 			'name': name,
 			'username': screen_name,
@@ -143,8 +159,10 @@ def user(request, usr_id):
 			'tw_cnt': tw_count,
 			'rt_cnt': rt_count,
 			're_cnt': re_count,
+			'retweeted_users': json.dumps(retweeted_users),
 			'related_users': json.dumps(related_users),
-			'hashtags': json.dumps(hashtags)
+			'hashtags': json.dumps(hashtags),
+			'isBanned': banned
 		}
 		return render(request, 'user.html', context=context)
 

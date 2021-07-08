@@ -134,7 +134,7 @@ function tcMakeDailyBarchart(divID, raw_data) {
 		.setYAxisScale(LINEAR_SCALE)
 		.setYAxisScaleDomain(SCALE_ZERO_MAX)
 		.setXLabel("")
-		.setYLabel("Number of tweets")
+		.setYLabel("# tweets")
 		.build(530, 380);
 }
 
@@ -170,7 +170,7 @@ function tcMakeSourcesBarchart(divID, raw_data) {
 		.setXAxisScale(LINEAR_SCALE)
 		.setXAxisScaleDomain(SCALE_ZERO_MAX)
 		.setYLabel("")
-		.setXLabel("Number of tweets")
+		.setXLabel("# tweets")
 		.build(530, 300);
 }
 
@@ -255,7 +255,7 @@ function tcMakeLevenshteinChart(divID, data, names, screen_names, descriptions) 
 			}
 
 			if(oldSName != "") {
-				html += 'Change of user name:<br/>'
+				html += 'Change of screen name:<br/>'
 				html += '<span style="color: red">-';
 				html += oldSName;
 				html += '</span><span style="color: green">+'
@@ -319,6 +319,6 @@ function tcMakeTypeChart(divID, data) {
 		.setYAxisScale(LINEAR_SCALE)
 		.setYAxisScaleDomain(SCALE_ZERO_MAX)
 		.setXLabel("")
-		.setYLabel("Number of tweets")
+		.setYLabel("# tweets")
 		.build(530, 300);
 }
