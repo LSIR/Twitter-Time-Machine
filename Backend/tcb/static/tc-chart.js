@@ -128,14 +128,14 @@ function tcMakeDailyBarchart(divID, raw_data) {
 		.setParentDiv($(divID))
 		.setData(data)
 		.setFilled(true)
-		.setMargin(10,80,50,0)
+		.setMargin(20,20,50,0)
 		.setXAxisScale(BAND_SCALE)
 		.setXAxisScaleDomain(SCALE_MAP)
 		.setYAxisScale(LINEAR_SCALE)
 		.setYAxisScaleDomain(SCALE_ZERO_MAX)
 		.setXLabel("")
 		.setYLabel("# tweets")
-		.build(530, 380);
+		.build(530, 280);
 }
 
 function tcMakeSourcesBarchart(divID, raw_data) {
