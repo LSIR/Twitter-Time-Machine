@@ -306,7 +306,7 @@
 				</div>
 
 				<div class="row bg-white pt-4">
-					<div class="col-6 px-4">
+					<div id="retweeted-box" class="col-6 px-4">
 						<!-- Remove temporarily
 						<h3>Profile Grade</h3>
 						<h1 style="font-size: 5em;"><span class="badge" id="profile_grade"></span></h1>
@@ -325,13 +325,13 @@
 					</div>
 				</div>
 				<div class="row bg-white pt-4">
-					<div class="col-6 px-4">
+					<div id="related-box" class="col-6 px-4">
 						<h5>Mentioned Users</h5>
 						<ul class="list-group list-group-flush" id="related_users" style="max-height: 300px; overflow:scroll">
 							
 						</ul>
 					</div>
-					<div class="col-6 px-4">
+					<div id="hashtags-box" class="col-6 px-4">
 						<h5>Used Hashtags</h5>
 						<ul class="list-group list-group-flush" id="hashtag" style="max-height: 300px; overflow:scroll">
 							
@@ -464,15 +464,30 @@
 	$("#most_viral_tweets").html(most_viral.reduce((acc, val) => acc + makeTweetCard(val), ''))
 	$("#most_fav_tweets").html(most_fav.reduce((acc, val) => acc + makeTweetCard(val), ''))
 
-	$("#retweeted_users").html(retweeted_users.reduce(function(acc, val) {
-		return acc+ '<li class="list-group-item">'+val[0]+' ('+val[1]+')</li>'
-	}, ''))
-	$("#related_users").html(related_users.reduce(function(acc, val) {
-		return acc+ '<li class="list-group-item">'+val[0]+' ('+val[1]+')</li>'
-	}, ''))
-	$("#hashtag").html(hashtag.reduce(function(acc, val) {
-		return acc+ '<li class="list-group-item">'+val[0]+' ('+val[1]+')</li>'
-	}, ''))
+	if(retweeted_users.length > 0) {
+		$("#retweeted_users").html(retweeted_users.reduce(function(acc, val) {
+			return acc+ '<li class="list-group-item">'+val[0]+' ('+val[1]+')</li>'
+		}, ''))
+	} else {
+		document.getElementById("retweeted-box").innerHTML = "<h5>Retweeted Users</h5> <p>No users were retweeted <p>"
+	}
+
+	if(related_users.length > 0) {
+		$("#related_users").html(related_users.reduce(function(acc, val) {
+			return acc+ '<li class="list-group-item">'+val[0]+' ('+val[1]+')</li>'
+		}, ''))
+	} else {
+		document.getElementById("related-box").innerHTML = "<h5>Mentioned Users</h5> <p>No users were mentioned <p>"
+	}
+
+	if(hashtag.length > 0) {
+		$("#hashtag").html(hashtag.reduce(function(acc, val) {
+			return acc+ '<li class="list-group-item">'+val[0]+' ('+val[1]+')</li>'
+		}, ''))
+	} else {
+		document.getElementById("hashtags-box").innerHTML = "<h5>Used Hashtags</h5> <p>No hashtags were used <p>"
+	}
+	
 	tcMakeHistoryChart('#followers_chart', history_raw, 'followers_count', {{ peaks|safe }}, function (d) {
 		/*$.ajax("/tweets/{{ username }}?ts=" + (d.x / 1000)).done(function (res) {
 			let tweetModal = new bootstrap.Modal(document.getElementById('tweetModal'))
@@ -509,6 +524,8 @@
 	let name_history = {{names|safe}}
 	let description_history = {{descriptions|safe}}
 
+	/*
+	// total distance
 	function writeAttributeHistory(history, attr_name, divID, attr_json_name) {
 		let size = history.length;
 		let message = ""
@@ -521,6 +538,35 @@
 				dist += levenshteinDistance(history[i][attr_json_name], history[i - 1][attr_json_name])
 			}
 			message += "<br/>The Levenshtein distance of consecutive pairs of " + attr_name + " is " + dist;
+		}
+		$("#" + divID).html(message)
+	}
+	*/
+
+	// Max and percentage instead of total distance
+	function writeAttributeHistory(history, attr_name, divID, attr_json_name) {
+		let size = history.length;
+		let message = ""
+		if (size == 1) {
+			message = "There have been no changes in " + attr_name;
+		} else {
+			message = "There have been " + (size - 1) + " changes in " + attr_name;
+			let max_prev = 0
+			let max_next = 0
+			let max_dist = 0;
+			for (let i = 1; i < size; i++) {
+				let prev = history[i - 1][attr_json_name]
+				let next = history[i][attr_json_name]
+				dist = levenshteinDistance(next, prev)
+				if(dist > max_dist){
+					max_dist = dist
+					max_prev = prev.length
+					max_next = next.length
+				}
+			}
+			message += "<br/>The maximum Levenshtein distance of consecutive pairs of " + attr_name + " is " + max_dist;
+			message += "<br/>The two corresponding " + attr_name + "s are " + (
+				max_dist*100 / Math.max(max_prev, max_next)).toFixed(2) + " % different";
 		}
 		$("#" + divID).html(message)
 	}
@@ -550,6 +596,7 @@
 		return s;
 	}
 
+	/*
 	let levenshtein_data = []
 	var prev_ts = 0
 	history_raw.forEach(function (elem, idx) {
@@ -563,6 +610,22 @@
 			prev_ts = elem['ts']
 		}
 	})
+	*/
+
+	//New technique for levenshtein data :
+	let timestamps = new Set()
+	name_history.forEach(e => timestamps.add(e.ts))
+	screen_name_history.forEach(e => timestamps.add(e.ts))
+	description_history.forEach(e => timestamps.add(e.ts))
+
+	let levenshtein_data = []
+	timestamps.forEach(function (ts, idx) {
+		let a = levenshteinAt(ts);
+		if (a != 0) {
+			levenshtein_data.push({ x: (new Date(ts * 1000)).toUTCString(), y: a })
+		}
+	});
+
 
 	tcMakeLevenshteinChart("#levenshtein_chart", levenshtein_data, name_history, screen_name_history, description_history)
 	tweets_metadata.sort((b, a) => b.ts - a.ts)
