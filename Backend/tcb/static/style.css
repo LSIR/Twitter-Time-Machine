@@ -31,6 +31,15 @@ h1#twitter_title {
     color:#1DA1F2;
 }
 
+.dark-box-colors {
+    background-color: #4e5961;
+    color: white;
+}
+
+.txt-lightgray {
+    color: lightgray;
+}
+
 .underline-twitter {
     background-image: linear-gradient(120deg, #1DA1F2 0%, #1df2b6 100%);
     background-repeat: no-repeat;

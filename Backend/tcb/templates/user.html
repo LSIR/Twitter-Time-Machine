@@ -244,6 +244,68 @@
 		<div class="tab-pane fade show active" id="summary" role="tabpanel" aria-labelledby="summary-tab">
 			<div class="container-fluid">
 				<div class="row bg-white pt-4">
+					<div class="col-4 number-box ps-4">
+						<div class="card dark-box-colors">
+							<div class="card-body">
+								<div class="row align-items-center">
+									<div class="col">
+	
+										<h6 class="text-uppercase txt-lightgray mb-2">
+											Peaks in followers
+										</h6>
+	
+										<span id="riseFollowers" class="h2 mb-0">
+											0
+										</span>
+	
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+	
+					<div class="col-4 number-box">
+						<div class="card dark-box-colors">
+							<div class="card-body">
+								<div class="row align-items-center">
+									<div class="col">
+	
+										<h6 class="text-uppercase txt-lightgray mb-2">
+											Attribute changes (levenshtein distance)
+										</h6>
+	
+										<span id="attributeChanges" class="h2 mb-0">
+											0
+										</span>
+	
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+	
+					<div class="col-4 number-box pe-4">
+						<div class="card dark-box-colors">
+							<div class="card-body">
+								<div class="row align-items-center">
+									<div class="col">
+	
+										<h6 class="text-uppercase txt-lightgray mb-2">
+											Deletions
+										</h6>
+	
+										<span id="deletionsCount" class="h2 mb-0">
+											0
+										</span>
+	
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="row bg-white pt-4">
 					<div class="col-6 px-4">
 						<!-- Remove temporarily
 						<h3>Profile Grade</h3>
@@ -489,12 +551,16 @@
 	}
 
 	let levenshtein_data = []
+	var prev_ts = 0
 	history_raw.forEach(function (elem, idx) {
 		if (idx != 0) {
-			let a = levenshteinAt(elem['ts']);
-			if (a != 0) {
-				levenshtein_data.push({ x: (new Date(elem['ts'] * 1000)).toUTCString(), y: a })
+			if (elem['ts'] != prev_ts) {
+				let a = levenshteinAt(elem['ts']);
+				if (a != 0) {
+					levenshtein_data.push({ x: (new Date(elem['ts'] * 1000)).toUTCString(), y: a })
+				}
 			}
+			prev_ts = elem['ts']
 		}
 	})
 
@@ -521,6 +587,11 @@
 	}
 	
 	$("#deleted_title").html("This user has deleted "+deletion_count+" tweets");
+
+	// instead of profile grade : 
+	document.getElementById("riseFollowers").innerText = {{ peaks }}.length
+	document.getElementById("attributeChanges").innerText = levenshtein_data.reduce((acc, curr) => acc + curr.y, 0)
+	document.getElementById("deletionsCount").innerText = deletion_count
 
 	let grade = profileGrade(screen_name_history, name_history, description_history, history_raw, deletion_history, {{ peaks|safe }});
 	if(grade > 90) {
