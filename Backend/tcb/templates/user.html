@@ -633,6 +633,7 @@
 	let deletion_history = []
 	let deletion_count = 0
 	tweets_metadata.forEach(function(e) {
+		deletion_count += e.deleted?1:0;
 		if(e.deleted && e['ts'] != undefined) {
 			deletion_count += 1;
 			let ot = tweets_metadata.filter(x => x.id == e.id && !x.deleted && 'text' in x)

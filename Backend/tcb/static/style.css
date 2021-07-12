@@ -133,7 +133,7 @@ div.tooltip {
     background: rgb(32, 32, 32);	
     color: white;
     border: 0px;
-    border-radius: 8px;			
+    border-radius: 3px;			
     pointer-events: none;	
     max-width: 200px;		
 }

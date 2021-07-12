@@ -333,7 +333,7 @@ class TCChartBuilder {
 
 
 		let _extent = function(f,data) { return d3.extent(data, f)}
-		let _zero_max = function(f,data) { return [0, d3.max(data, f)]}
+		let _zero_max = function(f,data) { return [-0.02*d3.max(data, f), d3.max(data, f)]} //-0.02*max because we want 0 to have a minium height
 		let _map = function(f,data) { return data.map(f) }
 		if(this.x_scale_domain == SCALE_EXTENT) {
 			this.xScale.domain(_extent(function(d) { return d.x; }, this.data));
