@@ -127,12 +127,13 @@ def user(request, usr_id):
 
 				#del(t["text"]) #avoid transfering the text over the network
 		
-		print(retweeted_users)
-		
 		(peaks, max_slope, avg_slope) = analysis.find_peaks(user['history'], 'followers_count')
+
+
 
 		hashtags = list(sorted(hashtags.items(), key=lambda item: item[1], reverse=True))
 		related_users = list(sorted(related_users.items(), key=lambda item: item[1], reverse=True))
+		related_users = [u for u in related_users if u[0] not in retweeted_users.keys()] # keep only users in retweeted
 		retweeted_users = list(sorted(retweeted_users.items(), key=lambda item: item[1], reverse=True))
 		context = {
 			'name': name,
