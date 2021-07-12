@@ -84,16 +84,22 @@ def user(request, usr_id):
 		tweets_metadata = list(database.get_collection("tweets").find({"user_id": details['id']}, {'_id': False, 'user_id': False}))
 
 		# Remove duplicate tweets
-		print(tweets_metadata)
 		tweets_metadata = pd.DataFrame(tweets_metadata)
 		temp_tweets = tweets_metadata.copy().groupby("text").last().reset_index().drop(columns=["ts"])
 		timestamps = tweets_metadata.copy()[["text", "ts"]].groupby("text").first().reset_index()
-		deleted = tweets_metadata[tweets_metadata.deleted == True]
+		deleted = tweets_metadata[tweets_metadata.deleted == True][["ts", "id", "deleted"]]
 		tweets_metadata = temp_tweets.merge(timestamps, on="text")
-		tweets_metadata = pd.concat([tweets_metadata, deleted], axis=0)
-		tweets_metadata = tweets_metadata.fillna("")
+		#tweets_metadata = pd.concat([tweets_metadata, deleted], axis=0)
+		#tweets_metadata = tweets_metadata.fillna(value={"text":""})
+
+		deleted_ts = deleted[~pd.isna(deleted.ts)]
+		deleted_nots = deleted[pd.isna(deleted.ts)]
 		
 		tweets_metadata = tweets_metadata.to_dict('records')
+		print(len(tweets_metadata))
+		tweets_metadata = tweets_metadata + deleted_nots[["id", "deleted"]].to_dict("records") \
+		 + deleted_ts[["ts", "id", "deleted"]].to_dict("records")
+		print(len(tweets_metadata))
 
 		rt_count = 0
 		tw_count = 0
