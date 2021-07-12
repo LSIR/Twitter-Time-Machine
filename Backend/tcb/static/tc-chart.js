@@ -116,11 +116,16 @@ function tcMakeHistoryChart(divID, raw_data, metric, highlighted_points, click_f
 }
 
 function tcMakeDailyBarchart(divID, raw_data) {
-	let data = [{x: "Monday", y: 0}, {x: "Tuesday", y: 0},{x: "Wednesday", y: 0},{x: "Thursday", y: 0},{x: "Friday", y: 0},{x: "Saturday", y: 0}, {x: "Sunday", y: 0}]
+	let data = [
+		{x: "00", y: 0}, {x: "1", y: 0},{x: "2", y: 0},{x: "3", y: 0},{x: "4", y: 0},{x: "5", y: 0}, {x: "6", y: 0},
+		{x: "7", y: 0}, {x: "8", y: 0},{x: "9", y: 0},{x: "10", y: 0},{x: "11", y: 0},{x: "12", y: 0}, {x: "13", y: 0},
+		{x: "14", y: 0}, {x: "15", y: 0},{x: "16", y: 0},{x: "17", y: 0},{x: "18", y: 0},{x: "19", y: 0}, {x: "20", y: 0},
+		{x: "21", y: 0}, {x: "22", y: 0},{x: "23", y: 0}
+	]
 	raw_data.forEach(function(e) {
 		let date = new Date();
 		date.setTime(e.ts*1000);
-		let day = mod((date.getDay() - 1), 7);
+		let day = date.getUTCHours();
 		data[day].y += 1;
 	});
 	let builder = new TCChartBuilder(BAR_CHART);
@@ -128,7 +133,7 @@ function tcMakeDailyBarchart(divID, raw_data) {
 		.setParentDiv($(divID))
 		.setData(data)
 		.setFilled(true)
-		.setMargin(20,20,50,0)
+		.setMargin(30,20,30,0)
 		.setXAxisScale(BAND_SCALE)
 		.setXAxisScaleDomain(SCALE_MAP)
 		.setYAxisScale(LINEAR_SCALE)
