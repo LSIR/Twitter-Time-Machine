@@ -141,6 +141,18 @@ function tcMakeDailyBarchart(divID, raw_data) {
 		.setXLabel("")
 		.setYLabel("# tweets")
 		.build(530, 280);
+	let tooltip = d3.select("body").append("div")
+		.attr("class", "tooltip")
+	chart.svg.selectAll("rect")
+		.on("mouseover", function() { tooltip.style("opacity", "0.9"); })
+		.on("mouseout", function() { tooltip.style("opacity", "0"); })
+		.on("mousemove", function(d) {
+			if(d != undefined) {
+				tooltip.html(d.y)
+					.style("left", (d3.event.pageX) + "px")		
+					.style("top", (d3.event.pageY - 28) + "px");
+			}
+		});
 }
 
 function tcMakeSourcesBarchart(divID, raw_data) {
