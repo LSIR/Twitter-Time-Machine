@@ -21,13 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '!@-kp&ru#&)=cbgs&u#o^0ff59abr0sfb=eblw!-&xx6%0nsfs'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '!@-kp&ru#&)=cbgs&u#o^0ff59abr0sfb=eblw!-&xx6%0nsfs')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False if os.environ.get('DJANGO_DEBUG', 'False') == False else True
 
-ALLOWED_HOSTS = ["*"]
-
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', "*").split(' ')
 
 # Application definition
 
@@ -80,6 +79,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    },
+    'mongodb': {
+        'URI': os.environ.get('MONGODB_URI', 'mongodb://mongodb:27017/'),
+        'DB_NAME': os.environ.get('DB_NAME', 'trollcheck'),
     }
 }
 
@@ -108,7 +111,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Europe/Berlin'
+TIME_ZONE = 'Europe/Zurich'
 
 USE_I18N = True
 
@@ -124,3 +127,8 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
+
+# See https://developer.twitter.com/en/docs/authentication/oauth-2-0/bearer-tokens
+TWITTER_BEARER_TOKEN = os.environ.get('TWITTER_BEARER_TOKEN')
+if not TWITTER_BEARER_TOKEN:
+    print("No token available for Twitter API, are you sure that you created the config.py file containing bearer_token ?")

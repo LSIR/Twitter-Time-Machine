@@ -1,26 +1,18 @@
-from django.http import HttpResponse
 from django.http import JsonResponse
 from django.shortcuts import render
 import json
 import requests
 import pymongo
 from datetime import datetime
-import functools 
 from . import analysis
-from functools import reduce
 import re
 import pandas as pd
-
-token = 0
-try:
-	from .config import *
-	token = bearer_token
-except:
-	print("No token available for Twitter API, are you sure that you created the config.py file containing bearer_token ?")
+from django.conf import settings
 
 
-client = pymongo.MongoClient('mongodb://localhost:27017')
-database = client['trollcheck']
+mongo_settings = settings.DATABASES["mongodb"]
+client = pymongo.MongoClient(mongo_settings["URI"])
+database = client[mongo_settings["DB_NAME"]]
 autocomplete_limit = 10
 
 retweeted_tag_regex = re.compile(r'RT \@\w+')
@@ -56,7 +48,7 @@ def user(request, usr_id):
 		banned = False
 
 		# Get updated informations from twitter API
-		headers = {"Authorization": "Bearer {}".format(token)}
+		headers = {"Authorization": "Bearer {}".format(settings.TWITTER_BEARER_TOKEN)}
 		url = "https://api.twitter.com/1.1/users/show.json?user_id={}".format(details["id"])
 		user_request =  requests.request("GET", url, headers=headers)
 
@@ -82,6 +74,9 @@ def user(request, usr_id):
 		user['history'] = sorted(user['history'], key=lambda x: x['ts'])
 		print("Done")
 		tweets_metadata = list(database.get_collection("tweets").find({"user_id": details['id']}, {'_id': False, 'user_id': False}))
+		
+		if not tweets_metadata:
+			return render(request, 'user_not_found.html', context={"user":usr_id})
 
 		# Remove duplicate tweets
 		tweets_metadata = pd.DataFrame(tweets_metadata)
@@ -177,7 +172,6 @@ def user(request, usr_id):
 		}
 		return render(request, 'user.html', context=context)
 
-	print(type(usr_id))
 	return render(request, 'user_not_found.html', context={"user":usr_id})
 
 def tweets(request, usr_id):
@@ -196,7 +190,6 @@ def tweets(request, usr_id):
 
 
 def autocomplete(request, username):
-
 	users = database.get_collection("users").find({ "_id": {"$regex": "^" + username + ".*"}}, {"_id":1}).sort([("details.followers_count", -1)]).limit(autocomplete_limit)
 
 	return JsonResponse(list(users), safe=False)
