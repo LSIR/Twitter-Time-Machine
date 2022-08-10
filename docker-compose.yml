@@ -1,0 +1,40 @@
+version: "3.2"
+
+volumes:
+  mongodb-data: {}
+  static_files: {}
+
+services:
+  mongodb:
+    image: mongo:4.4
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+
+  web:
+    build: ./Backend/tcb
+    image: django-tcb
+    container_name: web
+    ports:
+      - "8000:8000"
+    volumes:
+      - static_files:/static
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/
+      - TWITTER_BEARER_TOKEN="your-token-here"
+      - DJANGO_DEBUG=False
+    depends_on:
+      - mongodb
+
+  nginx:
+    image: nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - static_files:/usr/share/nginx/html/static
+    depends_on:
+      - web

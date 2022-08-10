@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '!@-kp&ru#&)=cbgs&u#o^0ff59abr0sfb=eblw!-&xx6%0nsfs')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False if os.environ.get('DJANGO_DEBUG', 'False') == False else True
+DEBUG = False if os.environ.get('DJANGO_DEBUG', 'False') == "False" else True
 
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', "*").split(' ')
 
@@ -123,10 +123,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
+STATIC_ROOT = os.environ.get('DJANGO_STATIC_ROOT', './staticfiles') 
 
 # See https://developer.twitter.com/en/docs/authentication/oauth-2-0/bearer-tokens
 TWITTER_BEARER_TOKEN = os.environ.get('TWITTER_BEARER_TOKEN')
