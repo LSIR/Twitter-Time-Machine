@@ -1,5 +1,16 @@
 # Backend
 
+To use the application, you'll need a *Bearer Token* to access to Twitter APIs.
+You can generate one with the following command:
+
+```bash
+curl -u "$API_KEY:$API_SECRET_KEY" \
+  --data 'grant_type=client_credentials' \
+  'https://api.twitter.com/oauth2/token'
+```
+
+For more information, visit [Twitter official documentation](https://developer.twitter.com/en/docs/authentication/oauth-2-0/bearer-tokens).
+
 ## Usage
 
 - Install dependancies
