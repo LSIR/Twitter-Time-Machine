@@ -26,4 +26,4 @@ EXPOSE 8000
 
 USER nobody
 
-CMD ["gunicorn", "tcb.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["gunicorn", "--config", "gunicorn.conf.py", "tcb.wsgi:application"]

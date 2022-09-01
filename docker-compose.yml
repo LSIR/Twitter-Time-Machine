@@ -12,6 +12,8 @@ services:
       - "27017:27017"
     volumes:
       - mongodb-data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=trollcheck
 
   web:
     build: ./Backend/tcb
