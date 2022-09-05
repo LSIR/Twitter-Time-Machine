@@ -35,14 +35,15 @@ mongo
 
 > db.createCollection("users")
 > db.createCollection("tweets")
-> db.createCollection("deleted_tweets")
 
 > db.users.createIndex({ "details.id": 1})
 > db.tweets.createIndex({ "user_id": 1})
 ```
 
-Then, you can import each file in the collection with the following command:
+Then, you can import each file in the data folder with the following command:
 
 ```bash
-gunzip -c <FILENAME.json.gz> | mongoimport --db=<DB-NAME> --collection=<COLLECTION-NAME> --type=json --jsonArray
+gunzip -c <FILENAME.json.gz> | mongoimport --db=<DB-NAME> --collection=<COLLECTION-NAME> --type=json --jsonArray --legacy
 ```
+
+Data from the `deleted_tweets` folder needs to be imported in the `tweets` collection.
